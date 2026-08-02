@@ -1,0 +1,31 @@
+{
+  "loading": {
+    "text": "Loading…"
+  },
+  "menu": {
+    "subtitle": "A paper-style board game",
+    "start": "Start Game",
+    "lang": "中文",
+    "credit": "Paper Cloud Games · Mooling Studio"
+  },
+  "game": {
+    "turn": "{player}'s turn",
+    "roll": "Tap the dice to roll",
+    "reroll": "Reroll ({n})",
+    "confirm": "Move",
+    "result": "Rolled {n}",
+    "rerollsLeft": "Rerolls left: {n}",
+    "win": "{player} wins!",
+    "restart": "Play Again",
+    "cell": "Cell {n}",
+    "start": "Start",
+    "finish": "Finish",
+    "playerRed": "Red",
+    "playerBlue": "Blue"
+  },
+  "blocked": {
+    "title": "Screen too small",
+    "msg": "Roll-and-Move needs a larger screen (tablet or computer). Please open it on a tablet or PC.",
+    "dim": "Current size: {w}×{h}"
+  }
+}

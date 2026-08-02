@@ -1,0 +1,31 @@
+{
+  "loading": {
+    "text": "加载中…"
+  },
+  "menu": {
+    "subtitle": "纸面风格桌游",
+    "start": "开始游戏",
+    "lang": "EN",
+    "credit": "纸云游戏 · 木泠工作室"
+  },
+  "game": {
+    "turn": "{player} 的回合",
+    "roll": "点击骰子掷骰",
+    "reroll": "重投（剩 {n} 次）",
+    "confirm": "走棋",
+    "result": "掷出 {n} 点",
+    "rerollsLeft": "剩余重投次数：{n}",
+    "win": "{player} 获胜！",
+    "restart": "再来一局",
+    "cell": "第 {n} 格",
+    "start": "起点",
+    "finish": "终点",
+    "playerRed": "红方",
+    "playerBlue": "蓝方"
+  },
+  "blocked": {
+    "title": "屏幕尺寸过小",
+    "msg": "Roll-and-Move 需要更大的屏幕（平板或电脑）。请在平板或电脑上打开本游戏。",
+    "dim": "当前尺寸：{w}×{h}"
+  }
+}
