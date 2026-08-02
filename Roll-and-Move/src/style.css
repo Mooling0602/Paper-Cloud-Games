@@ -158,10 +158,25 @@ body {
   align-items: flex-start;
   gap: 3px;
 }
+.topbar .right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+.topbar .right .btns {
+  display: flex;
+  gap: 8px;
+}
 .topbar .banner {
   font-size: 19px;
   text-align: left;
   padding-left: 4px;
+}
+.topbar .banner.right-side {
+  text-align: right;
+  padding-left: 0;
+  padding-right: 4px;
 }
 .topbar .right {
   display: flex;

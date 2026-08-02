@@ -36,6 +36,7 @@ export function createGame(onRestart: () => void): GameView {
   const banner = el('div', 'banner');
   leftGroup.append(restartBtn, banner);
   const right = el('div', 'right');
+  const rightBtns = el('div', 'btns');
   const fsBtn = paperButton(t('game.fullscreen'), () => toggleFullscreen(), 'small');
   const refreshFsLabel = (): void => {
     fsBtn.textContent = document.fullscreenElement ? t('game.exitFullscreen') : t('game.fullscreen');
@@ -44,7 +45,8 @@ export function createGame(onRestart: () => void): GameView {
   const zoomOutBtn = paperButton('−', () => zoom.zoomOut(), 'small');
   const zoomInBtn = paperButton('+', () => zoom.zoomIn(), 'small');
   const pctBtn = paperButton('100%', () => zoom.reset(), 'small');
-  right.append(fsBtn, zoomOutBtn, zoomInBtn, pctBtn);
+  rightBtns.append(fsBtn, zoomOutBtn, zoomInBtn, pctBtn);
+  right.append(rightBtns, banner);
   topbar.append(leftGroup, right);
 
   // ---------- board ----------
@@ -137,6 +139,10 @@ export function createGame(onRestart: () => void): GameView {
     const p = turn.player;
     banner.textContent = t('game.turn', { player: t(p.nameKey) });
     banner.style.color = p.color;
+    // player 0 (red) → banner under restart (left); player 1 (blue) → under zoom controls (right)
+    banner.classList.toggle('right-side', turn.current === 1);
+    if (turn.current === 0) leftGroup.append(banner);
+    else right.append(banner);
     hint.textContent = turn.state === 'deciding' ? t('game.rerollsLeft', { n: turn.rollsLeft }) : t('game.roll');
     result.textContent = turn.lastRoll > 0 ? t('game.result', { n: turn.lastRoll }) : '';
     const deciding = turn.state === 'deciding';
