@@ -50,7 +50,10 @@ export function createMenu(cb: MenuCallbacks): MenuView {
 
   const menu: MenuView = {
     view,
-    destroy: () => unsub(),
+    destroy: () => {
+      unsub();
+      view.remove();
+    },
   };
 
   const refresh = () => {

@@ -209,7 +209,10 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
 
   const setup: OnlineSetupView = {
     view,
-    destroy: () => unsub(),
+    destroy: () => {
+      unsub();
+      view.remove();
+    },
     showLobby: (code) => showLobbyStatus(code),
     showError: (msg) => {
       lobby.classList.remove('hidden');
