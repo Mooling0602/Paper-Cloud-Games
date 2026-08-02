@@ -1,5 +1,7 @@
 # Roll-and-Move
 
+**Languages: [English](README.md) | [简体中文](README_zh_CN.md)**
+
 A two-player dice-and-path board game. Players take turns rolling a classic six-sided die and moving along a 5×5 snake path from the start (top-left) to the finish (bottom-right); the first to arrive wins. Each turn a player may roll up to 3 times and keeps the last result.
 
 Built with **TypeScript + Vite**, web-native DOM/CSS (no game engine). Paper hand-drawn style, bilingual UI (Simplified Chinese / English).
