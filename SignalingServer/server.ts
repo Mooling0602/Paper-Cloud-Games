@@ -48,7 +48,7 @@ const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
   // /info is always the info page; / is the game when PUBLIC_DIR is set
   if (url === '/info' || (!PUBLIC_DIR && url === '/')) {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    res.end(infoPage());
+    res.end(infoPage(rooms.size));
     return;
   }
   if (PUBLIC_DIR) {
@@ -147,7 +147,7 @@ wss.on('connection', (ws) => {
   });
 });
 
-function infoPage(): string {
+function infoPage(activeRooms: number): string {
   const addrs: string[] = [];
   for (const [name, ifaces] of Object.entries(networkInterfaces())) {
     for (const iface of ifaces ?? []) {
@@ -162,6 +162,7 @@ function infoPage(): string {
 <html lang="en"><head><meta charset="utf-8"><title>Paper Cloud — Relay Server</title></head>
 <body style="font-family:monospace;background:#f6f1e5;color:#3b372e;padding:24px;line-height:1.8">
 <h2>Paper Cloud Games — Relay Server</h2>
+<p>Active rooms: <b>${activeRooms}</b></p>
 <p>Server port: <b>${PORT}</b></p>
 <p>Server addresses (send the IPv6 one to your friend):</p>
 <ul>${list}</ul>
