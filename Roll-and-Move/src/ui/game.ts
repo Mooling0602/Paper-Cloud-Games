@@ -80,12 +80,13 @@ export function createGame(onRestart: () => void): GameView {
     tk.style.left = `${fx * 100}%`;
     tk.style.top = `${fy * 100}%`;
   };
-  // single token → cell center; both on the same cell → diagonal (red NW, blue SE)
+  // single token → cell center; both on the same cell → anti-diagonal
+  // (red NE, blue SW) so the start badge (NW) and cell number stay visible
   const updateTokens = (): void => {
     const [a, b] = turn.players;
     const same = a.pos === b.pos;
-    setTokenPos(0, a.pos, same ? 0.27 : 0.5, same ? 0.27 : 0.5);
-    setTokenPos(1, b.pos, same ? 0.73 : 0.5, same ? 0.73 : 0.5);
+    setTokenPos(0, a.pos, same ? 0.73 : 0.5, same ? 0.27 : 0.5);
+    setTokenPos(1, b.pos, same ? 0.27 : 0.5, same ? 0.73 : 0.5);
   };
 
   const boardArea = el('main', 'board-area');
