@@ -45,8 +45,14 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
   } catch {
     /* ignore */
   }
-  // default: the signaling server runs on the device that serves this page
-  const defaultServer = `${location.hostname}:8787`;
+  // default server address:
+  //  - page served by the relay server itself (e.g. /play/roll-and-move/):
+  //    same host + path prefix, so wss://host/play/roll-and-move/ws works
+  //  - dev server at the site root: the relay runs on port 8787 of this host
+  const pathPrefix = location.pathname.replace(/index\.html$/, '').replace(/\/$/, '');
+  const defaultServer = pathPrefix
+    ? `${location.host}${pathPrefix}`
+    : `${location.hostname}:8787`;
   const serverRow = el('div', 'row');
   const serverLabel = el('label', 'label', t('menu.server'));
   serverLabel.dataset.i18n = 'menu.server';

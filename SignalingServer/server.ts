@@ -37,14 +37,15 @@ const MIME: Record<string, string> = {
 
 const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
   const url = (req.url ?? '/').split('?')[0];
-  if (url === '/' || url === '/info') {
+  // /info is always the info page; / is the game when PUBLIC_DIR is set
+  if (url === '/info' || (!PUBLIC_DIR && url === '/')) {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
     res.end(infoPage());
     return;
   }
   if (PUBLIC_DIR) {
     // serve the static game build (path traversal guarded)
-    const rel = normalize(url).replace(/^(\.\.[/\\])+/, '');
+    const rel = normalize(url).replace(/^(\.[.]?[/\\])+/, '');
     let file = join(PUBLIC_DIR, rel === '/' ? 'index.html' : rel);
     try {
       let data = await readFile(file);
