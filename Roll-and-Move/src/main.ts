@@ -7,6 +7,7 @@ import { setupErrorReporting, reportDebug } from './debug';
 import { createLoading } from './ui/loading';
 import { createMenu } from './ui/menu';
 import { createGame } from './ui/game';
+import { hasSave, loadGame, type SavedGame } from './logic/save';
 
 i18n.register({ code: 'en', dict: en });
 i18n.register({ code: 'zh-CN', dict: zhCN });
@@ -57,17 +58,17 @@ async function boot(): Promise<void> {
 
   const showMenu = () => {
     current?.destroy();
-    const menu = createMenu();
-    menu.onStart = () => {
-      showGame();
-    };
+    const menu = createMenu(
+      () => showGame(),
+      hasSave() ? () => showGame(loadGame() ?? undefined) : undefined,
+    );
     app.append(menu.view);
     current = { view: menu.view, destroy: menu.destroy };
   };
 
-  const showGame = () => {
+  const showGame = (initial?: SavedGame) => {
     current?.destroy();
-    const game = createGame(showGame, showMenu);
+    const game = createGame(showGame, showMenu, initial);
     app.append(game.view);
     current = { view: game.view, destroy: game.destroy };
   };

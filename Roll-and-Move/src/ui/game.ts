@@ -4,6 +4,7 @@ import { ZoomController } from '../../../Core/zoom/ZoomController';
 import { toggleFullscreen } from '../../../Core/device/fullscreen';
 import { cellPos, nextPos, LAST_CELL, GRID } from '../logic/board';
 import { TurnManager } from '../logic/turn';
+import { saveGame, clearGame, type SavedGame } from '../logic/save';
 
 const PIPS: Record<number, number[]> = {
   1: [4],
@@ -19,9 +20,14 @@ export interface GameView {
   destroy: () => void;
 }
 
-export function createGame(onRestart: () => void, onBackToMenu: () => void): GameView {
+export function createGame(onRestart: () => void, onBackToMenu: () => void, initial?: SavedGame): GameView {
   const t = (key: string, vars?: Record<string, string | number>) => i18n.t(key, vars);
   const turn = new TurnManager();
+  if (initial) {
+    turn.players[0].pos = initial.positions[0];
+    turn.players[1].pos = initial.positions[1];
+    turn.current = initial.current;
+  }
   const zoom = new ZoomController();
   let rolling = false;
 
@@ -33,8 +39,17 @@ export function createGame(onRestart: () => void, onBackToMenu: () => void): Gam
   const topbar = el('header', 'topbar');
   const leftGroup = el('div', 'left');
   const leftBtns = el('div', 'btns');
-  const restartBtn = paperButton(t('game.restart'), onRestart);
-  const backBtn = paperButton(t('game.backMenu'), onBackToMenu);
+  const restartBtn = paperButton(t('game.restart'), () => {
+    clearGame();
+    onRestart();
+  });
+  const backBtn = paperButton(t('game.backMenu'), () => {
+    saveGame({
+      positions: [turn.players[0].pos, turn.players[1].pos],
+      current: turn.current,
+    });
+    onBackToMenu();
+  });
   leftBtns.append(restartBtn, backBtn);
   leftGroup.append(leftBtns);
   const banner = el('div', 'banner');
@@ -243,10 +258,16 @@ export function createGame(onRestart: () => void, onBackToMenu: () => void): Gam
   const finishMove = (): void => {
     const won = turn.finishMove();
     if (won) {
+      clearGame();
       const p = turn.player;
       winTitle.textContent = t('game.win', { player: t(p.nameKey) });
       winTitle.style.color = p.color;
       overlay.classList.remove('hidden');
+    } else {
+      saveGame({
+        positions: [turn.players[0].pos, turn.players[1].pos],
+        current: turn.current,
+      });
     }
     refresh();
   };

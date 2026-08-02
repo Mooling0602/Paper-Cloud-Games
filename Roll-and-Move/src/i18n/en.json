@@ -5,6 +5,7 @@
   "menu": {
     "subtitle": "A paper-style board game",
     "start": "Start Game",
+    "resume": "Resume Game",
     "lang": "中文（简体）",
     "credit": "Paper Cloud Games · Mooling Studio"
   },
