@@ -4,6 +4,12 @@ This file documents the coding standards and AI collaboration guidelines for the
 
 ## Coding Standards
 
+### Development Process
+
+- Before writing any code, a clear, implementable technical plan and design must be established, with no unresolved parts left open.
+- If any part of the plan remains unclear or undecided, ask the user until they explicitly confirm and instruct to start writing code.
+- This rule does not apply when the user explicitly lets the AI agent decide on its own.
+
 ### Semantic Commits and Version Management
 
 **Commit messages follow Conventional Commits**
