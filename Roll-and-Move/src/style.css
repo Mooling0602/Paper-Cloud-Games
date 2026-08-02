@@ -332,7 +332,7 @@ body {
   box-shadow: 2px 3px 0 rgba(59, 55, 46, 0.25);
   display: grid;
   grid-template: repeat(3, 1fr) / repeat(3, 1fr);
-  padding: 8%;
+  padding: 7px; /* px, not %: % padding resolves against the PARENT width */
   cursor: pointer;
   touch-action: manipulation;
 }
