@@ -7,10 +7,13 @@ import zhCN from './i18n/zh-CN.json';
 import { LoadingScene } from './scenes/LoadingScene';
 import { MenuScene } from './scenes/MenuScene';
 import { GameScene } from './scenes/GameScene';
+import { setupErrorReporting } from './debug';
 
 i18n.register({ code: 'en', dict: en });
 i18n.register({ code: 'zh-CN', dict: zhCN });
 i18n.setLang(i18n.detect());
+
+setupErrorReporting();
 
 const vv = window.visualViewport;
 /** visual viewport when available (mobile URL bars), window size otherwise */
