@@ -15,6 +15,7 @@ This file documents the coding standards and AI collaboration guidelines for the
 
 - Before writing any code, a clear, implementable technical plan and design must be established, with no unresolved parts left open.
 - If any part of the plan remains unclear or undecided, ask the user until they explicitly confirm and instruct to start writing code.
+- Any naming or convention (规范) must be proposed to and explicitly confirmed by the user before being adopted; do not establish conventions on your own.
 - This rule does not apply when the user explicitly lets the AI agent decide on its own.
 
 ### Semantic Commits and Version Management
@@ -48,7 +49,7 @@ This file documents the coding standards and AI collaboration guidelines for the
 
 **Miscellaneous**
 
-- Game subprojects live directly at the repository root as `<game-name>/` directories (e.g. `tic-tac-toe/`), named in English kebab-case; no `games/` parent directory.
+- Game subprojects live directly at the repository root as `<Game-Name>/` directories (e.g. `Roll-and-Move/`), named in English, **case-sensitive** (case preserved exactly as decided); no `games/` parent directory.
 - Each game subproject must maintain its own `AGENTS.md` in its directory (to be added when creating the game project).
 
 ## Design Guidelines
