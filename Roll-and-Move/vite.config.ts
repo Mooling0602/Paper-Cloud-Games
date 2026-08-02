@@ -1,19 +1,11 @@
 import { defineConfig } from 'vite';
-import { appendFileSync, readFileSync } from 'node:fs';
-
-// self-signed dev cert (repo certs/, gitignored); WebRTC requires a secure
-// context, so the dev server must run over HTTPS
-const https = {
-  key: readFileSync(new URL('../certs/key.pem', import.meta.url)),
-  cert: readFileSync(new URL('../certs/cert.pem', import.meta.url)),
-};
+import { appendFileSync } from 'node:fs';
 
 export default defineConfig({
   base: './',
   server: {
     host: true, // reachable from tablets on the LAN
     port: 5173,
-    https,
     fs: { allow: ['..'] }, // allow importing Core/ outside the project root
   },
   build: { outDir: 'dist' },
