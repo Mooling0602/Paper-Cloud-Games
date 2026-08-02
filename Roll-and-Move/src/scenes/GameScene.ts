@@ -239,7 +239,7 @@ export class GameScene extends Phaser.Scene {
       }
       for (let y = 0; y < h; y += 100 * DPR) {
         this.add
-          .text(36 * DPR, y, String(y), { fontFamily: FONTS.family, fontSize: 14 * DPR, color: PAPER.redCss })
+          .text(36 * DPR, y, String(Math.round(y / DPR)), { fontFamily: FONTS.family, fontSize: 14 * DPR, color: PAPER.redCss })
           .setOrigin(0, 0.5);
       }
     }
