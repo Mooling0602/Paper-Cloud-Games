@@ -4,6 +4,13 @@ This file documents the coding standards and AI collaboration guidelines for the
 
 ## Coding Standards
 
+### MEMORY.md Usage
+
+- `MEMORY.md` at the repository root records important project background and decisions that have been discussed but are **not** being acted on yet (deferred decisions).
+- When a discussion concludes with something that is decided but not implemented right away, record it in `MEMORY.md`.
+- `MEMORY.md` content is written in **Simplified Chinese** (自然语言：中文（简体）内容).
+- Keep entries concise and factual. Decisions already implemented belong in `README.md` / `AGENTS.md` / `LICENSE`, not in `MEMORY.md`.
+
 ### Development Process
 
 - Before writing any code, a clear, implementable technical plan and design must be established, with no unresolved parts left open.
