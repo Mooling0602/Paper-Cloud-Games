@@ -50,7 +50,9 @@ if (isSmallScreen(currentViewport())) {
     };
     vv.addEventListener('resize', syncViewport);
     vv.addEventListener('scroll', syncViewport);
-    syncViewport();
+    // Phaser boots asynchronously and resets the canvas size on boot, so the
+    // first sync must run after the game is ready, not before.
+    game.events.once('ready', syncViewport);
   }
 }
 

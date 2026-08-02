@@ -45,6 +45,8 @@ export class GameScene extends Phaser.Scene {
     tok: Phaser.GameObjects.Container;
   }[] = [];
   private unsubs: Array<() => void> = [];
+  private debugText!: Phaser.GameObjects.Text;
+  private readonly debug = new URLSearchParams(location.search).has('debug');
 
   create(): void {
     const { width, height } = this.scale.gameSize;
@@ -209,6 +211,17 @@ export class GameScene extends Phaser.Scene {
 
     this.applyZoom();
     if (this.turn.state === 'finished') this.showWin();
+
+    // debug overlay: layout numbers (open with ?debug=1)
+    if (this.debug) {
+      const vv = window.visualViewport;
+      this.debugText = this.add
+        .text(MARGIN, TOP_BAR + 10, '', { fontFamily: FONTS.family, fontSize: '14px', color: PAPER.inkSoftCss })
+        .setOrigin(0, 0.5);
+      this.debugText.setText(
+        `win=${window.innerWidth}x${window.innerHeight} vv=${vv ? `${Math.round(vv.width)}x${Math.round(vv.height)}@${Math.round(vv.offsetTop)}` : 'n/a'} game=${this.scale.gameSize.width}x${this.scale.gameSize.height} boardTop=${Math.round(this.spec.cy - (5 * this.spec.size + 4 * this.spec.gap) / 2)}`,
+      );
+    }
   }
 
   private applyZoom(): void {
