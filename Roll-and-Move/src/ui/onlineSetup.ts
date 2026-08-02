@@ -61,6 +61,10 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
   createRow.append(createBtn);
 
   // ---------- full-screen room code entry ----------
+  // We NEVER read/rewrite the hidden input's value (IME/caret quirks corrupt it
+  // on some keyboards). Our own `code` string is the single source of truth,
+  // fed from input event data.
+  let code = '';
   const joinBtn = paperButton(t('menu.join'), () => openCodeOverlay(), 'menu-start');
   joinBtn.dataset.i18n = 'menu.join';
   const joinRow = el('div', 'row');
@@ -116,6 +120,7 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
 
   // ---------- code entry overlay ----------
   function openCodeOverlay(): void {
+    code = '';
     hiddenInput.value = '';
     codeDigits.textContent = '';
     codeError.hidden = true;
@@ -128,31 +133,29 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
     hiddenInput.blur();
   }
 
-  // never rewrite the value while an IME composition is active — it corrupts
-  // the input (digits get scrambled/reordered on some keyboards)
-  let composing = false;
-  const syncCode = (): void => {
-    hiddenInput.value = hiddenInput.value.replace(/\D/g, '').slice(0, 4);
-    codeDigits.textContent = hiddenInput.value;
+  hiddenInput.addEventListener('input', (e) => {
+    const ev = e as InputEvent;
+    const target = e.target as HTMLInputElement;
+    if (ev.inputType === 'deleteContentBackward' || ev.inputType === 'deleteContentForward') {
+      code = target.value === '' ? '' : code.slice(0, -1);
+    } else if (ev.data) {
+      for (const ch of ev.data) {
+        if (/[0-9]/.test(ch) && code.length < 4) code += ch;
+      }
+    }
+    codeDigits.textContent = code;
     codeError.hidden = true;
-  };
-  hiddenInput.addEventListener('compositionstart', () => {
-    composing = true;
-  });
-  hiddenInput.addEventListener('compositionend', () => {
-    composing = false;
-    syncCode();
-  });
-  hiddenInput.addEventListener('input', () => {
-    if (!composing) syncCode();
   });
   hiddenInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace') {
+      code = code.slice(0, -1);
+      codeDigits.textContent = code;
+    }
     if (e.key === 'Enter') submitCode();
     if (e.key === 'Escape') closeCodeOverlay();
   });
 
   function submitCode(): void {
-    const code = hiddenInput.value.trim();
     if (!code) {
       codeError.textContent = t('game.onlineCodeEmpty');
       codeError.hidden = false;
