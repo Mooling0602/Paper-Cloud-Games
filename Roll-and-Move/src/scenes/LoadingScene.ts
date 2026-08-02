@@ -58,10 +58,15 @@ export class LoadingScene extends Phaser.Scene {
       });
     };
 
+    // Chinese webfonts are split into unicode-range subsets; loading with a
+    // sample text forces the chinese-simplified subset to download, otherwise
+    // canvas text silently falls back to the system font.
+    const ZH_SAMPLE =
+      '加载中…开始游戏纸面风格桌游纸云游戏·木泠工作室的回合点击骰子掷骰重投（剩次）走棋掷出点剩余重投次数获胜！再来一局第格起点终点屏幕尺寸过小需要更大的屏幕（平板或电脑）。请在平板或电脑上打开本游戏。当前尺寸：×';
     const loading = Promise.all([
-      document.fonts.load('16px "LXGW WenKai"'),
-      document.fonts.load('16px "Patrick Hand"'),
-      document.fonts.load('28px "LXGW WenKai"'),
+      document.fonts.load('16px "LXGW WenKai"', ZH_SAMPLE),
+      document.fonts.load('16px "Patrick Hand"', 'Roll-and-Move Loading... Start Game EN'),
+      document.fonts.load('28px "LXGW WenKai"', ZH_SAMPLE),
     ])
       .catch(() => undefined)
       .then(go);

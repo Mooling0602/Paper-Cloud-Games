@@ -28,8 +28,9 @@ export function paperButton(scene: Phaser.Scene, opts: PaperButtonOpts): PaperBu
 
   const g = scene.add.graphics();
   const zone = scene.add.zone(x, y, width, height).setInteractive({ useHandCursor: true });
+  // text is created at container-local (0,0); the container is already at (x, y)
   const text = scene.add
-    .text(x, y, label, { fontFamily: FONTS.family, fontSize, color: textColor })
+    .text(0, 0, label, { fontFamily: FONTS.family, fontSize, color: textColor })
     .setOrigin(0.5);
   const container = scene.add.container(x, y, [g, text]);
   container.setSize(width, height);
