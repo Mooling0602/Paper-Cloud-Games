@@ -208,7 +208,18 @@ export function createGame(
   // ---------- win overlay ----------
   const overlay = el('div', 'overlay hidden');
   const winTitle = el('div', 'win-title');
-  let againAction = onRestart;
+  // online: the win button starts a rematch over the same connection
+  const resetGame = (): void => {
+    turn.reset();
+    setFace(1);
+    overlay.classList.add('hidden');
+    updateTokens();
+    refresh();
+  };
+  let againAction = net ? () => {
+    net.send({ t: 'restart' });
+    resetGame();
+  } : onRestart;
   const againBtn = paperButton(t('game.restart'), () => againAction());
   overlay.append(winTitle, againBtn);
 
@@ -405,6 +416,8 @@ export function createGame(
         winTitle.textContent = t('game.win', { player: t(winner.nameKey) });
         winTitle.style.color = winner.color;
         overlay.classList.remove('hidden');
+      } else if (msg.t === 'restart' && !net.isHost) {
+        resetGame();
       } else if (msg.t === 'roll' && net.isHost) {
         // guest's turn only; host is authoritative
         if (turn.current !== 1) return;
