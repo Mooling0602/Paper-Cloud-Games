@@ -1,5 +1,6 @@
 import { el, paperButton } from './paper';
 import { i18n } from '../../../Core/i18n/LanguageManager';
+import { reportDebug } from '../debug';
 
 export interface OnlineSetupCallbacks {
   onCreateRoom: (server: string) => void;
@@ -104,6 +105,7 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
     lobby.classList.remove('hidden');
     lobbyText.textContent =
       code !== null ? t('game.onlineWaiting', { code }) : t('game.onlineConnecting');
+    reportDebug('ui', { ev: 'lobby', code });
   }
 
   const setup: OnlineSetupView = {

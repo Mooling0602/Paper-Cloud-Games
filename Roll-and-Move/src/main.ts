@@ -139,7 +139,10 @@ async function boot(): Promise<void> {
       url,
       role,
       code,
-      onCreated: (c) => setupRef?.showLobby(c),
+      onCreated: (c) => {
+        reportDebug('ui', { ev: 'created-cb', code: c, hasSetup: !!setupRef });
+        setupRef?.showLobby(c);
+      },
       onOpen: () => showGame(initial, link),
       onMessage: (m) => msgCb?.(m),
       onDisconnect: () => {
