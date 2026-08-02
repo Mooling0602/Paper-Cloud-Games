@@ -25,7 +25,7 @@ if (isSmallScreen()) {
   // the layout viewport). No visualViewport sync needed — fighting Phaser's
   // own resize handling caused the canvas to be vertically centered inside a
   // taller parent, leaving a blank strip at the top.
-  new Phaser.Game({
+  const game = new Phaser.Game({
     type: Phaser.AUTO,
     parent: 'app',
     width: 1280,
@@ -37,6 +37,19 @@ if (isSmallScreen()) {
     },
     scene: [LoadingScene, MenuScene, GameScene],
   });
+
+  // Phaser 4 renders at CSS resolution by default; on high-DPI screens the
+  // browser upscales the canvas and everything looks blurry. Re-size the
+  // backing buffer to the physical resolution (game coordinates unchanged).
+  const applyHiDPI = (): void => {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const { width, height } = game.scale.gameSize;
+    game.canvas.width = Math.round(width * dpr);
+    game.canvas.height = Math.round(height * dpr);
+    (game.renderer as { resize: (w: number, h: number) => void }).resize(game.canvas.width, game.canvas.height);
+  };
+  game.events.once('ready', applyHiDPI);
+  game.scale.on('resize', applyHiDPI);
 }
 
 /** Friendly full block page for small screens (phones etc.). */

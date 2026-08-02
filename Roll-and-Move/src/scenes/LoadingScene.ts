@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { i18n } from '../../../Core/i18n/LanguageManager';
-import { PAPER, FONTS } from '../../../Core/style/paper';
+import { PAPER, FONTS, TEXT_RES } from '../../../Core/style/paper';
 import { makePaperTexture } from '../style/draw';
 
 export class LoadingScene extends Phaser.Scene {
@@ -20,6 +20,7 @@ export class LoadingScene extends Phaser.Scene {
         fontFamily: FONTS.heading,
         fontSize: '52px',
         color: PAPER.inkCss,
+        resolution: TEXT_RES,
       })
       .setOrigin(0.5);
 
@@ -38,6 +39,7 @@ export class LoadingScene extends Phaser.Scene {
         fontFamily: FONTS.family,
         fontSize: '18px',
         color: PAPER.inkSoftCss,
+        resolution: TEXT_RES,
       })
       .setOrigin(0.5);
 

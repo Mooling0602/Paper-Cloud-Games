@@ -26,3 +26,6 @@ export const FONTS = {
   family: '"LXGW WenKai", "Patrick Hand", "KaiTi", "Kaiti SC", cursive',
   heading: '"Patrick Hand", "LXGW WenKai", cursive',
 };
+
+/** Text objects rasterize at this DPI to stay sharp on hi-dpi screens. */
+export const TEXT_RES = Math.min(window.devicePixelRatio || 1, 3);
