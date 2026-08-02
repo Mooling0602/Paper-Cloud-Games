@@ -166,6 +166,8 @@ export function createGame(onRestart: () => void): GameView {
     dice.classList.add('rolling');
   };
 
+  dice.addEventListener('click', roll);
+
   dice.addEventListener('animationend', () => {
     if (!rolling) return;
     rolling = false;
