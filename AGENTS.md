@@ -48,6 +48,7 @@ This file documents the coding standards and AI collaboration guidelines for the
 
 **Miscellaneous**
 
+- Game subprojects live directly at the repository root as `<game-name>/` directories (e.g. `tic-tac-toe/`), named in English kebab-case; no `games/` parent directory.
 - Each game subproject must maintain its own `AGENTS.md` in its directory (to be added when creating the game project).
 
 ## Design Guidelines
