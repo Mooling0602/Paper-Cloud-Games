@@ -99,11 +99,13 @@ wss.on('connection', (ws) => {
       return;
     }
     if (msg.t === 'create') {
+      if (roomCode) return; // already in a room — ignore (double-tap protection)
       roomCode = newCode();
       role = 'host';
       rooms.set(roomCode, { host: ws, guest: null });
       send(ws, { t: 'created', code: roomCode });
     } else if (msg.t === 'join' && typeof msg.code === 'string') {
+      if (roomCode) return; // already in a room — ignore
       const room = rooms.get(msg.code);
       if (!room || room.guest) {
         send(ws, { t: 'error', msg: 'room not available' });
@@ -127,11 +129,11 @@ wss.on('connection', (ws) => {
     if (!roomCode) return;
     const room = rooms.get(roomCode);
     if (!room) return;
+    // the room always dies when either side leaves — no stale rooms, no re-joins
+    rooms.delete(roomCode);
     if (role === 'host') {
-      rooms.delete(roomCode);
       if (room.guest) send(room.guest, { t: 'peer-left' });
     } else {
-      room.guest = null;
       send(room.host, { t: 'peer-left' });
     }
   });

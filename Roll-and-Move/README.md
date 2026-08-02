@@ -82,4 +82,6 @@ The game is fully static, and the relay server can also host the built files —
 
 4. **Play:** open `https://play.example.com` — the online setup page defaults the server address to the page's own hostname.
 
-> Container deployment (Podman) is planned but not yet implemented.
+> Container deployment is available too — a Dockerfile is included in the repo (`SignalingServer/Dockerfile`), the image serves the built game + the WebSocket relay on one port.
+>
+> **Live instance:** [https://clemooling.top/play/roll-and-move/](https://clemooling.top/play/roll-and-move/) — the online setup page defaults the server address to the page's own host/path automatically.
