@@ -82,8 +82,9 @@ export function createGame(onRestart: () => void): GameView {
       tk.style.height = `${px}px`;
     });
   };
-  applyTokenSize();
-  window.addEventListener('resize', applyTokenSize);
+  // the view may not be in the DOM yet, so re-apply whenever the board size settles
+  const tokenSizeObserver = new ResizeObserver(() => applyTokenSize());
+  tokenSizeObserver.observe(board);
   const setTokenPos = (pi: number, cell: number, fx = 0.5, fy = 0.5): void => {
     const tk = tokens[pi];
     cells[cell].append(tk);
@@ -262,7 +263,7 @@ export function createGame(onRestart: () => void): GameView {
     destroy: () => {
       unsubZoom();
       unsubI18n();
-      window.removeEventListener('resize', applyTokenSize);
+      tokenSizeObserver.disconnect();
       document.removeEventListener('fullscreenchange', refreshFsLabel);
       window.removeEventListener('keydown', onSpace);
       view.remove();
