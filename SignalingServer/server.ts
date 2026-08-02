@@ -101,7 +101,7 @@ const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
   }
   if (PUBLIC_DIR) {
     // serve the static game build (path traversal guarded)
-    const rel = normalize(url).replace(/^(\.[.]?[/\\])+/, '');
+    const rel = normalize(path).replace(/^(\.[.]?[/\\])+/, '');
     let file = join(PUBLIC_DIR, rel === '/' ? 'index.html' : rel);
     try {
       let data = await readFile(file);
