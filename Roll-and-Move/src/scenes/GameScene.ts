@@ -259,6 +259,9 @@ export class GameScene extends Phaser.Scene {
       canvasLeft: Math.round(canvasRect.left),
       canvasSize: `${Math.round(canvasRect.width)}x${Math.round(canvasRect.height)}`,
       avail: `${screen.availWidth}x${screen.availHeight}`,
+      screen: `${screen.width}x${screen.height}`,
+      screenY: Math.round(window.screenY),
+      clientH: document.documentElement.clientHeight,
       orient: screen.orientation?.type ?? 'n/a',
     });
   }
