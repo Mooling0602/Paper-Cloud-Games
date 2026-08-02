@@ -34,6 +34,8 @@
     "onlineDisconnected": "连接已断开",
     "onlineSaved": "（已自动保存）",
     "onlineError": "连接失败：{msg}",
+    "onlineRoomError": "房间不存在或已满",
+    "onlineCodeEmpty": "请输入房间码",
     "fullscreen": "全屏",
     "exitFullscreen": "退出全屏",
     "cell": "第 {n} 格",

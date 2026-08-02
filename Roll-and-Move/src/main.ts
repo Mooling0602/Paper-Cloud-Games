@@ -147,7 +147,9 @@ async function boot(): Promise<void> {
         else setupRef?.hideLobby(); // lost before the game started
       },
       onError: (msg) => {
-        setupRef?.showError(i18n.t('game.onlineError', { msg }));
+        const friendly =
+          msg === 'room not available' ? i18n.t('game.onlineRoomError') : msg;
+        setupRef?.showError(i18n.t('game.onlineError', { msg: friendly }));
         reportDebug('online-error', { msg });
       },
     });

@@ -57,7 +57,9 @@ export class OnlineSession {
       if (msg.t === 'created' && this.opts.onCreated) this.opts.onCreated(String(msg.code));
       else if (msg.t === 'joined' || msg.t === 'peer-ready') this.setupPeer();
       else if (msg.t === 'signal') this.onSignal(msg.data as { desc?: RTCSessionDescriptionInit; ice?: RTCIceCandidateInit });
-      else if (msg.t === 'error') this.opts.onError(String(msg.code ?? 'join failed'));
+      else if (msg.t === 'error') {
+        this.opts.onError(String((msg as { msg?: unknown }).msg ?? 'join failed'));
+      }
       else if (msg.t === 'peer-left') this.fail();
     };
     ws.onclose = () => this.fail();
