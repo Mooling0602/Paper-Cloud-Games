@@ -5,9 +5,16 @@ import en from './i18n/en.json';
 import zhCN from './i18n/zh-CN.json';
 import { setupErrorReporting, reportDebug } from './debug';
 import { createLoading } from './ui/loading';
-import { createMenu } from './ui/menu';
-import { createGame } from './ui/game';
-import { hasSave, loadGame, type SavedGame } from './logic/save';
+import { createMenu, type MenuView } from './ui/menu';
+import { createGame, type NetLink } from './ui/game';
+import { OnlineSession, type NetRole } from './net/online';
+import {
+  loadLocalGame,
+  hasLocalSave,
+  loadOnlineGame,
+  hasOnlineSave,
+  type SavedGame,
+} from './logic/save';
 
 i18n.register({ code: 'en', dict: en });
 i18n.register({ code: 'zh-CN', dict: zhCN });
@@ -35,7 +42,7 @@ async function boot(): Promise<void> {
       debugEl.textContent =
         `win ${window.innerWidth}x${window.innerHeight}\n` +
         `vv ${vv ? `${Math.round(vv.width)}x${Math.round(vv.height)}@${Math.round(vv.offsetTop)}` : 'n/a'}\n` +
-        `safe ${cssSafeAreaTop()} dpr ${window.devicePixelRatio}`;
+        `dpr ${window.devicePixelRatio}`;
       reportDebug('layout', {
         win: `${window.innerWidth}x${window.innerHeight}`,
         vv: vv ? `${Math.round(vv.width)}x${Math.round(vv.height)}@${Math.round(vv.offsetTop)}` : 'n/a',
@@ -48,42 +55,86 @@ async function boot(): Promise<void> {
     sync();
   }
 
-  // loading → menu → game
+  // loading → menu
   const loading = createLoading((k) => i18n.t(k));
   app.append(loading.view);
   await loading.ready;
   loading.view.remove();
 
   let current: { view: HTMLElement; destroy: () => void } | null = null;
+  let menuRef: MenuView | null = null;
+  let session: OnlineSession | null = null;
+
+  const teardownNet = (): void => {
+    session?.close();
+    session = null;
+  };
 
   const showMenu = () => {
     current?.destroy();
-    const menu = createMenu(
-      () => showGame(),
-      hasSave() ? () => showGame(loadGame() ?? undefined) : undefined,
-    );
+    teardownNet();
+    const menu = createMenu({
+      onStart: () => showGame(),
+      onResume: hasLocalSave() ? () => showGame(loadLocalGame() ?? undefined) : undefined,
+      onResumeOnline: hasOnlineSave()
+        ? () => startLobby(loadOnlineGame() ?? undefined, 'host', undefined)
+        : undefined,
+      onCreateRoom: (server) => startLobby(undefined, 'host', undefined, server),
+      onJoinRoom: (server, code) => startLobby(undefined, 'guest', code, server),
+      onCancelLobby: () => teardownNet(),
+    });
     app.append(menu.view);
     current = { view: menu.view, destroy: menu.destroy };
+    menuRef = menu;
   };
 
-  const showGame = (initial?: SavedGame) => {
+  const showGame = (initial?: SavedGame, net?: NetLink) => {
     current?.destroy();
-    const game = createGame(showGame, showMenu, initial);
+    // online: exit goes back to the menu (tear down the session); restart too
+    const exit = () => {
+      teardownNet();
+      showMenu();
+    };
+    const game = createGame(net ? exit : () => showGame(), exit, initial, net);
     app.append(game.view);
     current = { view: game.view, destroy: game.destroy };
   };
 
-  showMenu();
-}
+  const startLobby = (initial: SavedGame | undefined, role: NetRole, code?: string, server?: string) => {
+    teardownNet();
+    const addr = server ?? 'localhost:8787';
+    const url = `ws://${addr}/ws`;
+    let msgCb: ((m: unknown) => void) | null = null;
+    let discCb: (() => void) | null = null;
+    const link: NetLink = {
+      isHost: role === 'host',
+      send: (m) => session?.send(m),
+      onMessage: (cb) => {
+        msgCb = cb;
+      },
+      onDisconnect: (cb) => {
+        discCb = cb;
+      },
+    };
+    session = new OnlineSession({
+      url,
+      role,
+      code,
+      onCreated: (c) => menuRef?.showLobby(c),
+      onOpen: () => showGame(initial, link),
+      onMessage: (m) => msgCb?.(m),
+      onDisconnect: () => {
+        if (discCb) discCb();
+        else menuRef?.hideLobby(); // lost before the game started
+      },
+      onError: (msg) => {
+        menuRef?.hideLobby();
+        reportDebug('online-error', { msg });
+      },
+    });
+  };
 
-function cssSafeAreaTop(): number {
-  const probe = document.createElement('div');
-  probe.style.cssText =
-    'position:fixed;top:0;left:0;width:1px;height:1px;padding-top:env(safe-area-inset-top);visibility:hidden;pointer-events:none;';
-  document.body.appendChild(probe);
-  const v = probe.offsetHeight - probe.clientHeight;
-  probe.remove();
-  return v || 0;
+  showMenu();
 }
 
 function showBlockedPage(): void {

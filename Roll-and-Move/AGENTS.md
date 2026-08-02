@@ -29,7 +29,9 @@ Roll-and-Move (走格子) is a 2-player same-screen board game. Players take tur
 
 ### Scope
 
-- Phase 1: same-screen multiplayer only (LAN/remote host-authoritative networking comes later)
+- Same-screen local mode and online mode (IPv6 P2P, host-authoritative; host = red, guest = blue)
+- Online signaling runs through `SignalingServer/` (Node, dual-stack); game data flows over WebRTC DataChannel
+- No auto-reconnect; on disconnect the host auto-saves (localStorage) and the game is resumed manually from the menu
 - Input priority per root guidelines: multi-touch > keyboard/mouse > gamepad (gamepad later)
 - Small screens: completely block entry with a friendly message
 - Zoom: browser zoom + built-in in-game zoom system (per root guidelines)

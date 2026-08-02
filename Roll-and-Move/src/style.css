@@ -131,6 +131,62 @@ body {
   color: #8a8374;
 }
 
+/* ---------- online lobby ---------- */
+.online {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: min(420px, 86vw);
+}
+.online-title {
+  font-size: 20px;
+  color: #8a8374;
+  letter-spacing: 0.2em;
+}
+.online .row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+}
+.online .label {
+  font-size: 16px;
+  color: #8a8374;
+}
+.paper-input {
+  font-family: inherit;
+  font-size: 16px;
+  color: #3b372e;
+  background: #f6f1e5;
+  border: 2px solid #3b372e;
+  border-radius: 8px;
+  padding: 6px 12px;
+  width: 220px;
+  outline: none;
+}
+.paper-input:focus {
+  background: #fdfaf1;
+}
+.paper-input.code {
+  width: 110px;
+  text-align: center;
+  letter-spacing: 0.3em;
+}
+.lobby {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #8a8374;
+  font-size: 16px;
+}
+.lobby.hidden {
+  display: none;
+}
+
 /* ---------- game layout ---------- */
 .game-shell {
   position: absolute;

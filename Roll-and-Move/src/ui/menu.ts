@@ -1,14 +1,30 @@
 import { el, paperButton } from './paper';
-import type { LangCode } from '../../../Core/i18n/LanguageManager';
 import { i18n } from '../../../Core/i18n/LanguageManager';
+
+export interface MenuCallbacks {
+  onStart: () => void;
+  /** Local game save exists. */
+  onResume?: () => void;
+  /** Online host save exists. */
+  onResumeOnline?: () => void;
+  onCreateRoom: (server: string) => void;
+  onJoinRoom: (server: string, code: string) => void;
+  onCancelLobby: () => void;
+}
 
 export interface MenuView {
   view: HTMLElement;
   destroy: () => void;
+  /** Show the lobby status (room code, or connecting). */
+  showLobby: (code: string | null) => void;
+  /** Clear the lobby status (error/back). */
+  hideLobby: () => void;
 }
 
-export function createMenu(onStart: () => void, onResume?: () => void): MenuView {
-  const t = (key: string) => i18n.t(key);
+const SERVER_KEY = 'rm-server-addr';
+
+export function createMenu(cb: MenuCallbacks): MenuView {
+  const t = (key: string, vars?: Record<string, string | number>) => i18n.t(key, vars);
 
   const view = el('div', 'view');
   view.append(el('div', 'paper-bg'));
@@ -17,28 +33,86 @@ export function createMenu(onStart: () => void, onResume?: () => void): MenuView
   subtitle.dataset.i18n = 'menu.subtitle';
 
   const actions = el('div', 'menu-actions');
-  const startBtn = paperButton(t('menu.start'), onStart, 'menu-start');
+  const startBtn = paperButton(t('menu.start'), cb.onStart, 'menu-start');
   startBtn.dataset.i18n = 'menu.start';
-  const resumeBtn = paperButton(t('menu.resume'), () => onResume?.(), 'menu-start');
+  const resumeBtn = paperButton(t('menu.resume'), () => cb.onResume?.(), 'menu-start');
   resumeBtn.dataset.i18n = 'menu.resume';
-  if (!onResume) resumeBtn.hidden = true;
+  if (!cb.onResume) resumeBtn.hidden = true;
+  const resumeOnlineBtn = paperButton(t('menu.resumeOnline'), () => cb.onResumeOnline?.(), 'menu-start');
+  resumeOnlineBtn.dataset.i18n = 'menu.resumeOnline';
+  if (!cb.onResumeOnline) resumeOnlineBtn.hidden = true;
   const langBtn = paperButton(t('menu.lang'), () => {
     i18n.setLang(i18n.current === 'zh-CN' ? 'en' : 'zh-CN');
   });
   langBtn.dataset.i18n = 'menu.lang';
-  actions.append(startBtn, resumeBtn, langBtn);
+  actions.append(startBtn, resumeBtn, resumeOnlineBtn, langBtn);
+
+  // ---------- online section ----------
+  const online = el('div', 'online');
+  const onlineTitle = el('div', 'online-title', t('menu.online'));
+  onlineTitle.dataset.i18n = 'menu.online';
+
+  const serverInput = el('input', 'paper-input');
+  serverInput.type = 'text';
+  serverInput.placeholder = 'localhost:8787';
+  try {
+    serverInput.value = localStorage.getItem(SERVER_KEY) ?? '';
+  } catch {
+    /* ignore */
+  }
+  const serverRow = el('div', 'row');
+  const serverLabel = el('label', 'label', t('menu.server'));
+  serverLabel.dataset.i18n = 'menu.server';
+  serverRow.append(serverLabel, serverInput);
+
+  const createBtn = paperButton(t('menu.create'), () => cb.onCreateRoom(serverValue()), 'small');
+  createBtn.dataset.i18n = 'menu.create';
+  const codeInput = el('input', 'paper-input code');
+  codeInput.type = 'text';
+  codeInput.placeholder = '1234';
+  codeInput.maxLength = 4;
+  codeInput.inputMode = 'numeric';
+  const joinBtn = paperButton(t('menu.join'), () => cb.onJoinRoom(serverValue(), codeInput.value.trim()), 'small');
+  joinBtn.dataset.i18n = 'menu.join';
+  const joinRow = el('div', 'row');
+  joinRow.append(codeInput, joinBtn);
+  const createRow = el('div', 'row');
+  createRow.append(createBtn);
+
+  const lobby = el('div', 'lobby hidden');
+  const lobbyText = el('div', 'lobby-text');
+  const cancelBtn = paperButton(t('menu.cancel'), () => cb.onCancelLobby(), 'small');
+  cancelBtn.dataset.i18n = 'menu.cancel';
+  lobby.append(lobbyText, cancelBtn);
+
+  online.append(onlineTitle, serverRow, createRow, joinRow, lobby);
+  view.append(title, subtitle, actions, online);
 
   const credit = el('div', 'menu-credit', t('menu.credit'));
   credit.dataset.i18n = 'menu.credit';
+  view.append(credit);
 
-  view.append(title, subtitle, actions, credit);
+  function serverValue(): string {
+    const v = serverInput.value.trim();
+    try {
+      localStorage.setItem(SERVER_KEY, v);
+    } catch {
+      /* ignore */
+    }
+    return v || 'localhost:8787';
+  }
 
   const menu: MenuView = {
     view,
     destroy: () => unsub(),
+    showLobby: (code: string | null) => {
+      lobby.classList.remove('hidden');
+      lobbyText.textContent =
+        code !== null ? t('game.onlineWaiting', { code }) : t('game.onlineConnecting');
+    },
+    hideLobby: () => lobby.classList.add('hidden'),
   };
 
-  // re-render translated nodes on language change
   const refresh = () => {
     view.querySelectorAll<HTMLElement>('[data-i18n]').forEach((n) => {
       const key = n.dataset.i18n;

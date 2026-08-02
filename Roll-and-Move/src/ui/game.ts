@@ -3,8 +3,8 @@ import { i18n } from '../../../Core/i18n/LanguageManager';
 import { ZoomController } from '../../../Core/zoom/ZoomController';
 import { toggleFullscreen } from '../../../Core/device/fullscreen';
 import { cellPos, nextPos, LAST_CELL, GRID } from '../logic/board';
-import { TurnManager } from '../logic/turn';
-import { saveGame, clearGame, type SavedGame } from '../logic/save';
+import { TurnManager, type TurnState } from '../logic/turn';
+import { saveLocalGame, clearLocalGame, saveOnlineGame, type SavedGame } from '../logic/save';
 
 const PIPS: Record<number, number[]> = {
   1: [4],
@@ -20,7 +20,20 @@ export interface GameView {
   destroy: () => void;
 }
 
-export function createGame(onRestart: () => void, onBackToMenu: () => void, initial?: SavedGame): GameView {
+/** Online session bridge used by the game view. */
+export interface NetLink {
+  isHost: boolean;
+  send(msg: unknown): void;
+  onMessage(cb: (msg: unknown) => void): void;
+  onDisconnect(cb: () => void): void;
+}
+
+export function createGame(
+  onRestart: () => void,
+  onBackToMenu: () => void,
+  initial?: SavedGame,
+  net?: NetLink,
+): GameView {
   const t = (key: string, vars?: Record<string, string | number>) => i18n.t(key, vars);
   const turn = new TurnManager();
   if (initial) {
@@ -40,14 +53,12 @@ export function createGame(onRestart: () => void, onBackToMenu: () => void, init
   const leftGroup = el('div', 'left');
   const leftBtns = el('div', 'btns');
   const restartBtn = paperButton(t('game.restart'), () => {
-    clearGame();
+    clearLocalGame();
     onRestart();
   });
+  if (net) restartBtn.hidden = true; // online: no rematch in v1
   const backBtn = paperButton(t('game.backMenu'), () => {
-    saveGame({
-      positions: [turn.players[0].pos, turn.players[1].pos],
-      current: turn.current,
-    });
+    saveNow();
     onBackToMenu();
   });
   leftBtns.append(restartBtn, backBtn);
@@ -126,6 +137,19 @@ export function createGame(onRestart: () => void, onBackToMenu: () => void, init
   const boardArea = el('main', 'board-area');
   boardArea.append(board);
 
+  // ---------- save / network state ----------
+  const snapshot = (): SavedGame => ({
+    positions: [turn.players[0].pos, turn.players[1].pos],
+    current: turn.current,
+  });
+  const saveNow = (): void => {
+    if (net) {
+      if (net.isHost) saveOnlineGame(snapshot());
+    } else {
+      saveLocalGame(snapshot());
+    }
+  };
+
   // ---------- dice ----------
   const dice = el('div', 'dice');
   const pips = Array.from({ length: 9 }, () => {
@@ -152,6 +176,10 @@ export function createGame(onRestart: () => void, onBackToMenu: () => void, init
   const rollBtn = paperButton('', () => roll());
   const confirmBtn = paperButton('', () => {
     if (turn.state !== 'deciding') return;
+    if (net && !net.isHost) {
+      net.send({ t: 'confirm' });
+      return;
+    }
     turn.confirmMove();
     refresh();
     startMove();
@@ -177,7 +205,8 @@ export function createGame(onRestart: () => void, onBackToMenu: () => void, init
   // ---------- win overlay ----------
   const overlay = el('div', 'overlay hidden');
   const winTitle = el('div', 'win-title');
-  const againBtn = paperButton(t('game.restart'), onRestart);
+  let againAction = onRestart;
+  const againBtn = paperButton(t('game.restart'), () => againAction());
   overlay.append(winTitle, againBtn);
 
   gameView.append(topbar, boardArea, bottombar, overlay);
@@ -204,6 +233,16 @@ export function createGame(onRestart: () => void, onBackToMenu: () => void, init
     rollBtn.textContent = idle ? t('game.rollBtn') : deciding ? t('game.reroll', { n: turn.rollsLeft }) : '';
     confirmBtn.textContent = t('game.confirm');
     setDiceEnabled(idle || deciding);
+    if (net?.isHost) {
+      net.send({
+        t: 'state',
+        pos: [turn.players[0].pos, turn.players[1].pos],
+        cur: turn.current,
+        rolls: turn.rollsLeft,
+        last: turn.lastRoll,
+        state: turn.state,
+      });
+    }
     tokens.forEach((tk, i) => tk.classList.toggle('current', i === turn.current));
     panels.forEach((panel, i) => {
       const pl = turn.players[i];
@@ -216,6 +255,11 @@ export function createGame(onRestart: () => void, onBackToMenu: () => void, init
 
   const roll = (): void => {
     if (rolling) return;
+    if (net && !net.isHost) {
+      // guest: ask the host (authoritative)
+      net.send({ t: 'roll' });
+      return;
+    }
     if (!turn.canRoll()) {
       // reroll path: only valid while deciding
       if (turn.state !== 'deciding') return;
@@ -238,6 +282,7 @@ export function createGame(onRestart: () => void, onBackToMenu: () => void, init
     const n = 1 + Math.floor(Math.random() * 6);
     setFace(n);
     turn.onRolled(n);
+    if (net && net.isHost) net.send({ t: 'rolled', face: n });
     refresh();
     if (turn.state === 'moving') setTimeout(startMove, 700);
   });
@@ -258,16 +303,14 @@ export function createGame(onRestart: () => void, onBackToMenu: () => void, init
   const finishMove = (): void => {
     const won = turn.finishMove();
     if (won) {
-      clearGame();
+      clearLocalGame();
       const p = turn.player;
       winTitle.textContent = t('game.win', { player: t(p.nameKey) });
       winTitle.style.color = p.color;
       overlay.classList.remove('hidden');
+      if (net) net.send({ t: 'win', winner: turn.current });
     } else {
-      saveGame({
-        positions: [turn.players[0].pos, turn.players[1].pos],
-        current: turn.current,
-      });
+      saveNow();
     }
     refresh();
   };
@@ -277,6 +320,10 @@ export function createGame(onRestart: () => void, onBackToMenu: () => void, init
     e.preventDefault();
     if (turn.canRoll()) roll();
     else if (turn.state === 'deciding') {
+      if (net && !net.isHost) {
+        net.send({ t: 'confirm' });
+        return;
+      }
       turn.confirmMove();
       refresh();
       startMove();
@@ -295,6 +342,74 @@ export function createGame(onRestart: () => void, onBackToMenu: () => void, init
     resolveVars(t, gameView);
     refresh();
   });
+
+  // ---------- network wiring ----------
+  let msgCb: ((msg: unknown) => void) | null = null;
+  let discCb: (() => void) | null = null;
+  if (net) {
+    net.onMessage((m) => msgCb?.(m));
+    net.onDisconnect(() => discCb?.());
+    const handleMsg = (raw: unknown): void => {
+      const msg = raw as {
+        t?: string;
+        pos?: [number, number];
+        cur?: number;
+        rolls?: number;
+        last?: number;
+        state?: TurnState;
+        face?: number;
+        winner?: number;
+      };
+      if (msg.t === 'rolled' && !net.isHost) {
+        // visual-only: animate, then show the host's face
+        dice.classList.add('rolling');
+        const end = (): void => {
+          dice.classList.remove('rolling');
+          if (msg.face) setFace(msg.face);
+          dice.removeEventListener('animationend', end);
+        };
+        dice.addEventListener('animationend', end);
+      } else if (msg.t === 'state' && !net.isHost) {
+        turn.players[0].pos = msg.pos![0];
+        turn.players[1].pos = msg.pos![1];
+        turn.current = msg.cur!;
+        turn.rollsLeft = msg.rolls!;
+        turn.lastRoll = msg.last!;
+        turn.state = msg.state!;
+        updateTokens();
+        refresh();
+      } else if (msg.t === 'win' && !net.isHost) {
+        const winner = turn.players[msg.winner!];
+        winTitle.textContent = t('game.win', { player: t(winner.nameKey) });
+        winTitle.style.color = winner.color;
+        overlay.classList.remove('hidden');
+      } else if (msg.t === 'roll' && net.isHost) {
+        // guest's turn only; host is authoritative
+        if (turn.current !== 1) return;
+        if (turn.canRoll()) roll();
+        else if (turn.state === 'deciding') {
+          turn.reroll();
+          refresh();
+          roll();
+        }
+      } else if (msg.t === 'confirm' && net.isHost) {
+        if (turn.current !== 1 || turn.state !== 'deciding') return;
+        turn.confirmMove();
+        refresh();
+        startMove();
+      }
+    };
+    msgCb = handleMsg;
+    discCb = () => {
+      if (net.isHost) saveOnlineGame(snapshot());
+      winTitle.textContent =
+        t('game.onlineDisconnected') + (net.isHost ? ' ' + t('game.onlineSaved') : '');
+      winTitle.style.color = '#3b372e';
+      againAction = onBackToMenu;
+      againBtn.textContent = t('game.backMenu');
+      overlay.classList.remove('hidden');
+    };
+  }
 
   // start
   turn.beginTurn();
