@@ -367,8 +367,8 @@ body {
 }
 .dice .pip::before {
   content: '';
-  width: 62%;
-  aspect-ratio: 1;
+  width: var(--pip, 10px);
+  height: var(--pip, 10px);
   border-radius: 50%;
   background: #c94f4f;
   opacity: 0;

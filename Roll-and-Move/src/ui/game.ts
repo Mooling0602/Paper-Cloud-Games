@@ -116,6 +116,14 @@ export function createGame(onRestart: () => void): GameView {
   };
   setFace(1);
 
+  // deterministic pip diameter in px, derived from the dice size
+  const applyPipSize = (): void => {
+    const px = Math.max(6, Math.round(dice.clientWidth * 0.17));
+    dice.style.setProperty('--pip', `${px}px`);
+  };
+  const pipSizeObserver = new ResizeObserver(() => applyPipSize());
+  pipSizeObserver.observe(dice);
+
   // roll button (left of dice) + confirm button (right of dice), top center
   const rollBtn = paperButton('', () => roll());
   const confirmBtn = paperButton('', () => {
@@ -268,6 +276,7 @@ export function createGame(onRestart: () => void): GameView {
       unsubZoom();
       unsubI18n();
       tokenSizeObserver.disconnect();
+      pipSizeObserver.disconnect();
       document.removeEventListener('fullscreenchange', refreshFsLabel);
       window.removeEventListener('keydown', onSpace);
       view.remove();
