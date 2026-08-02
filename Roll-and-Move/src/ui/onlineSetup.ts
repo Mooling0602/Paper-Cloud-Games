@@ -65,7 +65,7 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
   const joinBtn = paperButton(t('menu.join'), () => {
     showLobbyStatus(null);
     cb.onJoinRoom(serverValue(), codeInput.value.trim());
-  });
+  }, 'menu-start');
   joinBtn.dataset.i18n = 'menu.join';
   const joinRow = el('div', 'row');
   joinRow.append(codeInput, joinBtn);
