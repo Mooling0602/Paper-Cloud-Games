@@ -18,6 +18,7 @@
     "win": "{player} 获胜！",
     "restart": "再来一局",
     "fullscreen": "全屏",
+    "exitFullscreen": "退出全屏",
     "cell": "第 {n} 格",
     "start": "起点",
     "finish": "终点",

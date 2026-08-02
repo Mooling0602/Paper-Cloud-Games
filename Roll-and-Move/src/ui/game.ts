@@ -35,6 +35,10 @@ export function createGame(onRestart: () => void): GameView {
   const banner = el('div', 'banner');
   const right = el('div', 'right');
   const fsBtn = paperButton(t('game.fullscreen'), () => toggleFullscreen(), 'small');
+  const refreshFsLabel = (): void => {
+    fsBtn.textContent = document.fullscreenElement ? t('game.exitFullscreen') : t('game.fullscreen');
+  };
+  document.addEventListener('fullscreenchange', refreshFsLabel);
   const zoomOutBtn = paperButton('−', () => zoom.zoomOut(), 'small');
   const zoomInBtn = paperButton('+', () => zoom.zoomIn(), 'small');
   const pctBtn = paperButton('100%', () => zoom.reset(), 'small');
@@ -223,6 +227,7 @@ export function createGame(onRestart: () => void): GameView {
     destroy: () => {
       unsubZoom();
       unsubI18n();
+      document.removeEventListener('fullscreenchange', refreshFsLabel);
       window.removeEventListener('keydown', onSpace);
       view.remove();
     },
