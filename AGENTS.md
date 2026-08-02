@@ -60,6 +60,7 @@ This file documents the coding standards and AI collaboration guidelines for the
 - Build tooling: **Vite**
 - Game framework: **Phaser 4** (latest stable release)
 - Games are standalone Vite projects in their `<Game-Name>/` directory; monorepo workspace tooling (e.g. pnpm workspaces) is deferred until a second game or a shared package appears
+- Reusable logic shared across games lives in `Core/` at the repository root (device detection, i18n manager, zoom controller, paper style theme)
 
 ## Design Guidelines
 
