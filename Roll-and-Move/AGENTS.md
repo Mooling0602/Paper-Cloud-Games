@@ -4,7 +4,7 @@ This file documents the design and coding standards for the Roll-and-Move game s
 
 ## Game Overview
 
-Roll-and-Move (走格子) is a 2-player same-screen board game. Players take turns rolling a classic six-sided die; the rolled number decides how many cells the player moves along the board path. The first player to reach the finish wins.
+Roll-and-Move is a 2-player same-screen board game. Players take turns rolling a classic six-sided die; the rolled number decides how many cells the player moves along the board path. The first player to reach the finish wins.
 
 ## Game Design (confirmed)
 
@@ -40,6 +40,6 @@ Roll-and-Move (走格子) is a 2-player same-screen board game. Players take tur
 
 - Follow the root `AGENTS.md` conventions (semantic commits, development process, etc.); use `Roll-and-Move` as the commit scope
 - Tech stack: TypeScript + Vite, web-native DOM/CSS (no game engine) — root convention
-- **UI text**: bilingual (中文 + English), with dedicated language files (JSON, e.g. `src/i18n/en.json`, `src/i18n/zh-CN.json`); default language follows the browser, with a manual toggle
-- **Fonts**: loaded online — Chinese: LXGW WenKai (霞鹜文楷, https://github.com/lxgw/LxgwWenKai); English: a hand-drawn Google Font (e.g. Patrick Hand); with system font fallbacks
+- **UI text**: bilingual (Simplified Chinese + English), with dedicated language files (JSON, e.g. `src/i18n/en.json`, `src/i18n/zh-CN.json`); default language follows the browser, with a manual toggle
+- **Fonts**: loaded online — Chinese: LXGW WenKai (https://github.com/lxgw/LxgwWenKai); English: a hand-drawn Google Font (e.g. Patrick Hand); with system font fallbacks
 - **Small screen blocking**: block entry when the viewport width < 768 or height < 600 (decided by the AI, user delegates)

@@ -103,15 +103,15 @@ function infoPage(): string {
   }
   const list = addrs.length
     ? addrs.map((a) => `<li><code>${a}</code></li>`).join('\n')
-    : '<li>（未检测到非内部地址）</li>';
+    : '<li>(no non-internal addresses detected)</li>';
   return `<!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><title>Paper Cloud — 信令服务器</title></head>
+<html lang="en"><head><meta charset="utf-8"><title>Paper Cloud — Signaling Server</title></head>
 <body style="font-family:monospace;background:#f6f1e5;color:#3b372e;padding:24px;line-height:1.8">
-<h2>Paper Cloud Games — 信令服务器</h2>
-<p>服务器端口：<b>${PORT}</b></p>
-<p>网页端服务器地址（把 IPv6 地址发给朋友，替换成你的实际地址）：</p>
+<h2>Paper Cloud Games — Signaling Server</h2>
+<p>Server port: <b>${PORT}</b></p>
+<p>Server addresses (send the IPv6 one to your friend):</p>
 <ul>${list}</ul>
-<p>网页端填写示例：<code>[fe80::1]:8787</code> 或 <code>localhost:8787</code>（同机测试）</p>
+<p>Enter in the game as: <code>[fe80::1]:8787</code> or <code>localhost:8787</code> (same-machine testing)</p>
 </body></html>`;
 }
 

@@ -15,7 +15,7 @@ This file documents the coding standards and AI collaboration guidelines for the
 
 - Before writing any code, a clear, implementable technical plan and design must be established, with no unresolved parts left open.
 - If any part of the plan remains unclear or undecided, ask the user until they explicitly confirm and instruct to start writing code.
-- Any naming or convention (规范) must be proposed to and explicitly confirmed by the user before being adopted; do not establish conventions on your own.
+- Any naming or convention must be proposed to and explicitly confirmed by the user before being adopted; do not establish conventions on your own.
 - Project file trees (directory structures) must not be written into long-term files (e.g. AGENTS.md, README.md); if needed, record them in memory files instead.
 - Game subprojects may have their own `MEMORY.md`.
 - This rule does not apply when the user explicitly lets the AI agent decide on its own.
@@ -65,11 +65,12 @@ This file documents the coding standards and AI collaboration guidelines for the
 
 ## Design Guidelines
 
-- **Game types**: mainly board games (桌游). Requirements:
+- **Game types**: mainly board games. Requirements:
   - Touch-friendly, supporting multi-touch
   - Same-screen multiplayer (multiple players on one device)
   - LAN or remote online multiplayer
-- **Online multiplayer**: host-authoritative — the host (房主) runs the server side as the host machine, so the server logic is embedded in the webpage; no separate server deployment- **Primary target**: tablets (convenient for same-screen multiplayer); local keyboard/mouse and gamepad support are also required
+- **Online multiplayer**: host-authoritative — the host runs the server side as the host machine, so the server logic is embedded in the webpage; no separate server deployment
+- **Primary target**: tablets (convenient for same-screen multiplayer); local keyboard/mouse and gamepad support are also required
 - **Adaptation priority**: multi-touch > keyboard/mouse > gamepad (gamepad must support multiple devices for split-play)
 - **Small screens (phones, etc.)**: lowest priority; detect the device screen size and **completely block entry** with a friendly message — mobile users cannot use the game
 - **Testing**: tablets of any OS, any PC, and the Chrome browser
