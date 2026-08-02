@@ -41,5 +41,5 @@ Roll-and-Move is a 2-player same-screen board game. Players take turns rolling a
 - Follow the root `AGENTS.md` conventions (semantic commits, development process, etc.); use `Roll-and-Move` as the commit scope
 - Tech stack: TypeScript + Vite, web-native DOM/CSS (no game engine) — root convention
 - **UI text**: bilingual (Simplified Chinese + English), with dedicated language files (JSON, e.g. `src/i18n/en.json`, `src/i18n/zh-CN.json`); default language follows the browser, with a manual toggle
-- **Fonts**: loaded online — Chinese: LXGW WenKai (https://github.com/lxgw/LxgwWenKai); English: a hand-drawn Google Font (e.g. Patrick Hand); with system font fallbacks
+- **Fonts**: loaded online — Chinese: LXGW WenKai (霞鹜文楷, https://github.com/lxgw/LxgwWenKai); English: a hand-drawn Google Font (e.g. Patrick Hand); with system font fallbacks
 - **Small screen blocking**: block entry when the viewport width < 768 or height < 600 (decided by the AI, user delegates)
