@@ -26,3 +26,10 @@ export const FONTS = {
   family: '"LXGW WenKai", "Patrick Hand", "KaiTi", "Kaiti SC", cursive',
   heading: '"Patrick Hand", "LXGW WenKai", cursive',
 };
+
+/**
+ * World scale factor: the game runs in physical pixels (window × DPR) and is
+ * displayed back at the logical size via scale zoom = 1/DPR, so everything
+ * renders 1:1 with screen pixels (Phaser 4 has no hi-dpi support itself).
+ */
+export const DPR = Math.min(window.devicePixelRatio || 1, 3);

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { i18n } from '../../../Core/i18n/LanguageManager';
-import { PAPER, FONTS } from '../../../Core/style/paper';
+import { PAPER, FONTS, DPR } from '../../../Core/style/paper';
 import { makePaperTexture, seedRng, jitterRect } from '../style/draw';
 import { paperButton } from '../ui/paperButton';
 import { enterFullscreen } from '../../../Core/device/fullscreen';
@@ -21,34 +21,34 @@ export class MenuScene extends Phaser.Scene {
     // decorative hand-drawn frame
     const frame = this.add.graphics();
     seedRng(7);
-    frame.lineStyle(2, PAPER.ink, 0.5);
-    jitterRect(frame, 60, 60, width - 120, height - 120, 24, 2.5);
+    frame.lineStyle(2 * DPR, PAPER.ink, 0.5);
+    jitterRect(frame, 60 * DPR, 60 * DPR, width - 120 * DPR, height - 120 * DPR, 24 * DPR, 2.5 * DPR);
 
     const title = this.add
-      .text(width / 2, 250, 'Roll-and-Move', {
+      .text(width / 2, 250 * DPR, 'Roll-and-Move', {
         fontFamily: FONTS.heading,
-        fontSize: '76px',
+        fontSize: 76 * DPR,
         color: PAPER.inkCss,
       })
       .setOrigin(0.5)
       .setAngle(-2);
-    title.setShadow(3, 4, 'rgba(59,55,46,0.18)', 0, true, true);
+    title.setShadow(3 * DPR, 4 * DPR, 'rgba(59,55,46,0.18)', 0, true, true);
 
     const subtitle = this.add
-      .text(width / 2, 330, i18n.t('menu.subtitle'), {
+      .text(width / 2, 330 * DPR, i18n.t('menu.subtitle'), {
         fontFamily: FONTS.family,
-        fontSize: '30px',
+        fontSize: 30 * DPR,
         color: PAPER.inkSoftCss,
       })
       .setOrigin(0.5);
 
     const startBtn = paperButton(this, {
       x: width / 2,
-      y: 470,
-      width: 250,
-      height: 66,
+      y: 470 * DPR,
+      width: 250 * DPR,
+      height: 66 * DPR,
       label: i18n.t('menu.start'),
-      fontSize: 30,
+      fontSize: 30 * DPR,
       onClick: () => {
         // user gesture: hide the browser chrome on tablets (URL bar)
         void enterFullscreen();
@@ -58,20 +58,20 @@ export class MenuScene extends Phaser.Scene {
 
     const langBtn = paperButton(this, {
       x: width / 2,
-      y: 575,
-      width: 150,
-      height: 48,
+      y: 575 * DPR,
+      width: 150 * DPR,
+      height: 48 * DPR,
       label: i18n.t('menu.lang'),
-      fontSize: 22,
+      fontSize: 22 * DPR,
       onClick: () => {
         i18n.setLang(i18n.current === 'zh-CN' ? 'en' : 'zh-CN');
       },
     });
 
     const credit = this.add
-      .text(width / 2, height - 70, i18n.t('menu.credit'), {
+      .text(width / 2, height - 70 * DPR, i18n.t('menu.credit'), {
         fontFamily: FONTS.family,
-        fontSize: '17px',
+        fontSize: 17 * DPR,
         color: PAPER.inkSoftCss,
       })
       .setOrigin(0.5);

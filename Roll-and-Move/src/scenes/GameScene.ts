@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { i18n } from '../../../Core/i18n/LanguageManager';
 import { ZoomController } from '../../../Core/zoom/ZoomController';
-import { PAPER, FONTS } from '../../../Core/style/paper';
+import { PAPER, FONTS, DPR } from '../../../Core/style/paper';
 import { makePaperTexture } from '../style/draw';
 import { BoardSpec, drawBoard, drawToken, cellCenter, LAST_CELL, GRID, Board } from '../game/board';
 import { createDice, Dice } from '../game/dice';
@@ -10,10 +10,10 @@ import { paperButton, PaperButton } from '../ui/paperButton';
 import { toggleFullscreen, isFullscreen } from '../../../Core/device/fullscreen';
 import { reportDebug } from '../debug';
 
-const MARGIN = 16;
-const TOP_BAR = 72;
-const BOTTOM_ZONE = 200;
-const GAP = 8;
+const MARGIN = 16 * DPR;
+const TOP_BAR = 72 * DPR;
+const BOTTOM_ZONE = 200 * DPR;
+const GAP = 8 * DPR;
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -26,8 +26,8 @@ export class GameScene extends Phaser.Scene {
   private dice!: Dice;
   private tokens: Phaser.GameObjects.Container[] = [];
   private tokenOffsets = [
-    { x: -10, y: -10 },
-    { x: 10, y: 10 },
+    { x: -10 * DPR, y: -10 * DPR },
+    { x: 10 * DPR, y: 10 * DPR },
   ];
 
   private banner!: Phaser.GameObjects.Text;
@@ -97,34 +97,34 @@ export class GameScene extends Phaser.Scene {
 
     this.board = drawBoard(this, this.spec, (key) => i18n.t(key));
     for (const p of this.turn.players) {
-      this.tokens.push(drawToken(this, 0, 0, p.color, p.soft, 22));
+      this.tokens.push(drawToken(this, 0, 0, p.color, p.soft, 22 * DPR));
     }
     this.syncTokens();
 
     // bottom zone: dice + decision buttons + hints
-    this.dice = createDice(this, w / 2, h - 110, 84, () => void this.onRoll());
+    this.dice = createDice(this, w / 2, h - 110 * DPR, 84 * DPR, () => void this.onRoll());
     this.hint = this.add
-      .text(w / 2, h - 186, '', { fontFamily: FONTS.family, fontSize: '22px', color: PAPER.inkSoftCss })
+      .text(w / 2, h - 186 * DPR, '', { fontFamily: FONTS.family, fontSize: 22 * DPR, color: PAPER.inkSoftCss })
       .setOrigin(0.5);
     this.resultText = this.add
-      .text(w / 2, h - 52, '', { fontFamily: FONTS.family, fontSize: '26px', color: PAPER.redCss })
+      .text(w / 2, h - 52 * DPR, '', { fontFamily: FONTS.family, fontSize: 26 * DPR, color: PAPER.redCss })
       .setOrigin(0.5);
     this.rerollBtn = paperButton(this, {
-      x: w / 2 - 160,
-      y: h - 110,
-      width: 150,
-      height: 52,
+      x: w / 2 - 160 * DPR,
+      y: h - 110 * DPR,
+      width: 150 * DPR,
+      height: 52 * DPR,
       label: '',
-      fontSize: 21,
+      fontSize: 21 * DPR,
       onClick: () => this.onReroll(),
     });
     this.confirmBtn = paperButton(this, {
-      x: w / 2 + 80,
-      y: h - 110,
-      width: 130,
-      height: 52,
+      x: w / 2 + 80 * DPR,
+      y: h - 110 * DPR,
+      width: 130 * DPR,
+      height: 52 * DPR,
       label: '',
-      fontSize: 21,
+      fontSize: 21 * DPR,
       onClick: () => this.onConfirm(),
     });
     this.rerollBtn.setVisible(false);
@@ -132,71 +132,71 @@ export class GameScene extends Phaser.Scene {
 
     // top bar: restart (left), turn banner (center), zoom (right)
     this.banner = this.add
-      .text(w / 2, 36, '', { fontFamily: FONTS.family, fontSize: '36px', color: PAPER.inkCss })
+      .text(w / 2, 36 * DPR, '', { fontFamily: FONTS.family, fontSize: 36 * DPR, color: PAPER.inkCss })
       .setOrigin(0.5);
     this.restartBtn = paperButton(this, {
-      x: MARGIN + 90 + 8 + 70,
-      y: 36,
-      width: 140,
-      height: 42,
+      x: MARGIN + 168 * DPR,
+      y: 36 * DPR,
+      width: 140 * DPR,
+      height: 42 * DPR,
       label: i18n.t('game.restart'),
-      fontSize: 18,
+      fontSize: 18 * DPR,
       onClick: () => this.scene.restart(),
     });
     this.fsBtn = paperButton(this, {
-      x: MARGIN + 45,
-      y: 36,
-      width: 90,
-      height: 42,
+      x: MARGIN + 45 * DPR,
+      y: 36 * DPR,
+      width: 90 * DPR,
+      height: 42 * DPR,
       label: i18n.t('game.fullscreen'),
-      fontSize: 18,
+      fontSize: 18 * DPR,
       onClick: () => toggleFullscreen(),
     });
     paperButton(this, {
-      x: w - 156,
-      y: 36,
-      width: 40,
-      height: 36,
+      x: w - 156 * DPR,
+      y: 36 * DPR,
+      width: 40 * DPR,
+      height: 36 * DPR,
       label: '−',
-      fontSize: 20,
+      fontSize: 20 * DPR,
       onClick: () => this.zoom.zoomOut(),
     });
     paperButton(this, {
-      x: w - 108,
-      y: 36,
-      width: 40,
-      height: 36,
+      x: w - 108 * DPR,
+      y: 36 * DPR,
+      width: 40 * DPR,
+      height: 36 * DPR,
       label: '+',
-      fontSize: 20,
+      fontSize: 20 * DPR,
       onClick: () => this.zoom.zoomIn(),
     });
     this.pctBtn = paperButton(this, {
-      x: w - 48,
-      y: 36,
-      width: 64,
-      height: 36,
+      x: w - 48 * DPR,
+      y: 36 * DPR,
+      width: 64 * DPR,
+      height: 36 * DPR,
       label: '100%',
-      fontSize: 15,
+      fontSize: 15 * DPR,
       onClick: () => this.zoom.reset(),
     });
 
     // player panels at bottom corners
     this.panels = this.turn.players.map((p, i) => {
       const left = i === 0;
-      const px = left ? 30 : w - 30;
-      const tok = drawToken(this, px, h - 96, p.color, p.soft, 17);
+      const px = left ? 30 * DPR : w - 30 * DPR;
+      const tok = drawToken(this, px, h - 96 * DPR, p.color, p.soft, 17 * DPR);
       tok.setDepth(1);
       const name = this.add
-        .text(left ? 56 : w - 56, h - 100, '', {
+        .text(left ? 56 * DPR : w - 56 * DPR, h - 100 * DPR, '', {
           fontFamily: FONTS.family,
-          fontSize: '22px',
+          fontSize: 22 * DPR,
           color: PAPER.inkCss,
         })
         .setOrigin(left ? 0 : 1, 0.5);
       const cell = this.add
-        .text(left ? 56 : w - 56, h - 72, '', {
+        .text(left ? 56 * DPR : w - 56 * DPR, h - 72 * DPR, '', {
           fontFamily: FONTS.family,
-          fontSize: '17px',
+          fontSize: 17 * DPR,
           color: PAPER.inkSoftCss,
         })
         .setOrigin(left ? 0 : 1, 0.5);
@@ -205,16 +205,16 @@ export class GameScene extends Phaser.Scene {
 
     // win overlay (relative to the board)
     this.winText = this.add
-      .text(w / 2, this.spec.cy - 40, '', { fontFamily: FONTS.heading, fontSize: '64px' })
+      .text(w / 2, this.spec.cy - 40 * DPR, '', { fontFamily: FONTS.heading, fontSize: 64 * DPR })
       .setOrigin(0.5)
       .setVisible(false);
     this.winRestartBtn = paperButton(this, {
       x: w / 2,
-      y: this.spec.cy + 70,
-      width: 220,
-      height: 58,
+      y: this.spec.cy + 70 * DPR,
+      width: 220 * DPR,
+      height: 58 * DPR,
       label: '',
-      fontSize: 24,
+      fontSize: 24 * DPR,
       onClick: () => this.scene.restart(),
     });
     this.winRestartBtn.setVisible(false);
@@ -229,14 +229,14 @@ export class GameScene extends Phaser.Scene {
       g.lineBetween(0, 0.5, w, 0.5); // canvas top edge
       g.lineStyle(2, PAPER.blue, 0.9);
       g.lineBetween(0, 15.5, w, 15.5); // top bar buttons top edge
-      for (let y = 0; y < h; y += 20) {
-        const len = y % 100 === 0 ? 26 : y % 40 === 0 ? 16 : 8;
+      for (let y = 0; y < h; y += 20 * DPR) {
+        const len = (y % (100 * DPR) === 0 ? 26 : y % (40 * DPR) === 0 ? 16 : 8) * DPR;
         g.lineStyle(1, PAPER.red, 0.6);
         g.lineBetween(2, y, 2 + len, y);
       }
-      for (let y = 0; y < h; y += 100) {
+      for (let y = 0; y < h; y += 100 * DPR) {
         this.add
-          .text(36, y, String(y), { fontFamily: FONTS.family, fontSize: '14px', color: PAPER.redCss })
+          .text(36 * DPR, y, String(y), { fontFamily: FONTS.family, fontSize: 14 * DPR, color: PAPER.redCss })
           .setOrigin(0, 0.5);
       }
     }

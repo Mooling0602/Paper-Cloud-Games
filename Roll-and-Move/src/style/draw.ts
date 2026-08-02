@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { DPR } from '../../../Core/style/paper';
 
 /** Deterministic pseudo-random (seeded) for stable hand-drawn strokes. */
 let rngState = 1;
@@ -19,7 +20,7 @@ export function jitterLine(
   y1: number,
   x2: number,
   y2: number,
-  jitter = 1.6,
+  jitter = 1.6 * DPR,
   segs = 6,
 ): void {
   let px = x1;
@@ -42,7 +43,7 @@ export function jitterRect(
   w: number,
   h: number,
   r: number,
-  jitter = 1.4,
+  jitter = 1.4 * DPR,
 ): void {
   const j = () => (rand() - 0.5) * jitter;
   const p = [
@@ -69,7 +70,7 @@ export function arrow(
   y1: number,
   x2: number,
   y2: number,
-  size = 9,
+  size = 9 * DPR,
 ): void {
   const mx = (x1 + x2) / 2;
   const my = (y1 + y2) / 2;

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { PAPER, FONTS } from '../../../Core/style/paper';
+import { PAPER, FONTS, DPR } from '../../../Core/style/paper';
 import { jitterRect, seedRng } from '../style/draw';
 
 export interface PaperButton {
@@ -23,7 +23,7 @@ export interface PaperButtonOpts {
 /** Paper-styled button (jittered ink outline, press flash). */
 export function paperButton(scene: Phaser.Scene, opts: PaperButtonOpts): PaperButton {
   const { x, y, width, height, label, onClick } = opts;
-  const fontSize = opts.fontSize ?? 22;
+  const fontSize = opts.fontSize ?? 22 * DPR;
   const textColor = opts.textColor ?? PAPER.inkCss;
 
   const g = scene.add.graphics();
@@ -42,12 +42,12 @@ export function paperButton(scene: Phaser.Scene, opts: PaperButtonOpts): PaperBu
     g.clear();
     seedRng(Math.round(x * 7 + y * 13 + (enabled ? 0 : 1000)));
     g.fillStyle(PAPER.base, enabled ? 1 : 0.45);
-    g.fillRoundedRect(-width / 2, -height / 2, width, height, 10);
-    g.lineStyle(2.2, PAPER.ink, enabled ? 1 : 0.4);
-    jitterRect(g, -width / 2, -height / 2, width, height, 10);
+    g.fillRoundedRect(-width / 2, -height / 2, width, height, 10 * DPR);
+    g.lineStyle(2.2 * DPR, PAPER.ink, enabled ? 1 : 0.4);
+    jitterRect(g, -width / 2, -height / 2, width, height, 10 * DPR);
     // soft pencil shadow
-    g.lineStyle(1, PAPER.inkSoft, 0.35);
-    jitterRect(g, -width / 2 + 1.5, -height / 2 + 2.5, width, height, 10, 0.8);
+    g.lineStyle(1 * DPR, PAPER.inkSoft, 0.35);
+    jitterRect(g, -width / 2 + 1.5 * DPR, -height / 2 + 2.5 * DPR, width, height, 10 * DPR, 0.8 * DPR);
   };
 
   zone.on('pointerdown', () => {

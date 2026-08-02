@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { PAPER } from '../../../Core/style/paper';
+import { PAPER, DPR } from '../../../Core/style/paper';
 import { jitterRect, seedRng, rand } from '../style/draw';
 
 const PIPS: Record<number, [number, number][]> = {
@@ -49,7 +49,7 @@ export interface Dice {
 export function createDice(scene: Phaser.Scene, x: number, y: number, size = 84, onTap?: () => void): Dice {
   const g = scene.add.graphics();
   const shadow = scene.add.graphics();
-  const zone = scene.add.zone(x, y, size + 16, size + 16).setInteractive({ useHandCursor: true });
+  const zone = scene.add.zone(x, y, size + 16 * DPR, size + 16 * DPR).setInteractive({ useHandCursor: true });
   const container = scene.add.container(x, y, [shadow, g]);
   container.setSize(size, size);
 
@@ -63,11 +63,11 @@ export function createDice(scene: Phaser.Scene, x: number, y: number, size = 84,
     seedRng(value * 31);
     // paper face
     g.fillStyle(PAPER.base, 1);
-    g.fillRoundedRect(-half, -half, size, size, 12);
-    g.lineStyle(2.4, PAPER.ink, 1);
-    jitterRect(g, -half, -half, size, size, 12);
-    g.lineStyle(1, PAPER.inkSoft, 0.5);
-    jitterRect(g, -half + 2, -half + 3, size - 4, size - 4, 10, 0.8);
+    g.fillRoundedRect(-half, -half, size, size, 12 * DPR);
+    g.lineStyle(2.4 * DPR, PAPER.ink, 1);
+    jitterRect(g, -half, -half, size, size, 12 * DPR);
+    g.lineStyle(1 * DPR, PAPER.inkSoft, 0.5);
+    jitterRect(g, -half + 2 * DPR, -half + 3 * DPR, size - 4 * DPR, size - 4 * DPR, 10 * DPR, 0.8 * DPR);
     // pips
     const pr = size * 0.075;
     const off = size * 0.24;
@@ -80,7 +80,7 @@ export function createDice(scene: Phaser.Scene, x: number, y: number, size = 84,
   const drawShadow = () => {
     shadow.clear();
     shadow.fillStyle(PAPER.ink, 0.18);
-    shadow.fillEllipse(0, size / 2 + 10, size * 0.8, 14);
+    shadow.fillEllipse(0, size / 2 + 10 * DPR, size * 0.8, 14 * DPR);
   };
 
   zone.on('pointerdown', () => {
@@ -93,7 +93,7 @@ export function createDice(scene: Phaser.Scene, x: number, y: number, size = 84,
     new Promise((resolve) => {
       scene.tweens.add({
         targets: container,
-        y: y - 150,
+        y: y - 150 * DPR,
         angle: 540,
         duration: 340,
         ease: 'Quad.easeOut',

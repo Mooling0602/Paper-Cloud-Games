@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { i18n } from '../../Core/i18n/LanguageManager';
 import { isSmallScreen, getViewport } from '../../Core/device/screen';
-import { PAPER } from '../../Core/style/paper';
+import { PAPER, DPR } from '../../Core/style/paper';
 import en from './i18n/en.json';
 import zhCN from './i18n/zh-CN.json';
 import { LoadingScene } from './scenes/LoadingScene';
@@ -15,28 +15,39 @@ i18n.setLang(i18n.detect());
 
 setupErrorReporting();
 
-const vv = window.visualViewport;
-
 if (isSmallScreen()) {
   showBlockedPage();
 } else {
-  // RESIZE mode: Phaser tracks window.innerWidth/innerHeight itself, which on
-  // Android already excludes the URL bar (the bar overlays, it is not part of
-  // the layout viewport). No visualViewport sync needed — fighting Phaser's
-  // own resize handling caused the canvas to be vertically centered inside a
-  // taller parent, leaving a blank strip at the top.
-  new Phaser.Game({
+  // Phaser 4 has no devicePixelRatio support: the canvas backing buffer equals
+  // the game size, so on hi-dpi screens the browser upscales it and everything
+  // blurs. We therefore run the world in PHYSICAL pixels (window × DPR) and
+  // display it back at the logical size with scale zoom = 1/DPR — 1:1 pixels.
+  const size = { w: Math.round(window.innerWidth * DPR), h: Math.round(window.innerHeight * DPR) };
+  const game = new Phaser.Game({
     type: Phaser.AUTO,
     parent: 'app',
-    width: 1280,
-    height: 800,
+    width: size.w,
+    height: size.h,
     backgroundColor: PAPER.baseCss,
     scale: {
-      mode: Phaser.Scale.RESIZE,
+      mode: Phaser.Scale.NONE,
+      zoom: 1 / DPR,
       autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     scene: [LoadingScene, MenuScene, GameScene],
   });
+
+  const syncSize = (): void => {
+    const w = Math.round(window.innerWidth * DPR);
+    const h = Math.round(window.innerHeight * DPR);
+    if (w !== size.w || h !== size.h) {
+      size.w = w;
+      size.h = h;
+      game.scale.resize(w, h);
+    }
+  };
+  window.addEventListener('resize', syncSize);
+  window.addEventListener('orientationchange', syncSize);
 }
 
 /** Friendly full block page for small screens (phones etc.). */

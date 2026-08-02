@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { i18n } from '../../../Core/i18n/LanguageManager';
-import { PAPER, FONTS } from '../../../Core/style/paper';
+import { PAPER, FONTS, DPR } from '../../../Core/style/paper';
 import { makePaperTexture } from '../style/draw';
 
 export class LoadingScene extends Phaser.Scene {
@@ -16,27 +16,27 @@ export class LoadingScene extends Phaser.Scene {
     this.add.tileSprite(width / 2, height / 2, width, height, noise.key).setAlpha(0.5);
 
     const title = this.add
-      .text(width / 2, height / 2 - 60, 'Roll-and-Move', {
+      .text(width / 2, height / 2 - 60 * DPR, 'Roll-and-Move', {
         fontFamily: FONTS.heading,
-        fontSize: '52px',
+        fontSize: 52 * DPR,
         color: PAPER.inkCss,
       })
       .setOrigin(0.5);
 
-    const barW = 360;
+    const barW = 360 * DPR;
     const barX = width / 2 - barW / 2;
-    const barY = height / 2 + 20;
+    const barY = height / 2 + 20 * DPR;
     const barBg = this.add.graphics();
-    barBg.fillStyle(PAPER.alt, 1).fillRoundedRect(barX, barY, barW, 18, 9);
-    barBg.lineStyle(1.6, PAPER.ink, 0.8);
-    barBg.strokeRoundedRect(barX, barY, barW, 18, 9);
+    barBg.fillStyle(PAPER.alt, 1).fillRoundedRect(barX, barY, barW, 18 * DPR, 9 * DPR);
+    barBg.lineStyle(1.6 * DPR, PAPER.ink, 0.8);
+    barBg.strokeRoundedRect(barX, barY, barW, 18 * DPR, 9 * DPR);
     const fill = this.add.graphics();
     const bar = { w: 0 };
 
     const label = this.add
-      .text(width / 2, barY + 48, i18n.t('loading.text'), {
+      .text(width / 2, barY + 48 * DPR, i18n.t('loading.text'), {
         fontFamily: FONTS.family,
-        fontSize: '18px',
+        fontSize: 18 * DPR,
         color: PAPER.inkSoftCss,
       })
       .setOrigin(0.5);
@@ -52,7 +52,7 @@ export class LoadingScene extends Phaser.Scene {
         ease: 'Sine.easeOut',
         onUpdate: () => {
           fill.clear();
-          fill.fillStyle(PAPER.red, 1).fillRoundedRect(barX + 3, barY + 3, bar.w, 12, 6);
+          fill.fillStyle(PAPER.red, 1).fillRoundedRect(barX + 3 * DPR, barY + 3 * DPR, bar.w, 12 * DPR, 6 * DPR);
         },
         onComplete: () => this.scene.start('Menu'),
       });

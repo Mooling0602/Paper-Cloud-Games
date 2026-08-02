@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { PAPER } from '../../../Core/style/paper';
+import { PAPER, DPR } from '../../../Core/style/paper';
 import { arrow, jitterLine, seedRng, rand } from '../style/draw';
 
 export const GRID = 5;
@@ -60,18 +60,18 @@ export function drawBoard(scene: Phaser.Scene, spec: BoardSpec, labelCb: (key: s
 
     seedRng(i + 1);
     g.fillStyle((row + col) % 2 === 0 ? PAPER.base : PAPER.alt, 1);
-    g.fillRoundedRect(x, y, spec.size, spec.size, 6);
-    g.lineStyle(1.6, PAPER.ink, 0.85);
-    jitterLine(g, x + 3, y + 2, x + spec.size - 3, y + 2, 1.2, 4);
-    jitterLine(g, x + spec.size - 2, y + 3, x + spec.size - 2, y + spec.size - 3, 1.2, 4);
-    jitterLine(g, x + spec.size - 3, y + spec.size - 2, x + 3, y + spec.size - 2, 1.2, 4);
-    jitterLine(g, x + 2, y + spec.size - 3, x + 2, y + 3, 1.2, 4);
+    g.fillRoundedRect(x, y, spec.size, spec.size, 6 * DPR);
+    g.lineStyle(1.6 * DPR, PAPER.ink, 0.85);
+    jitterLine(g, x + 3 * DPR, y + 2 * DPR, x + spec.size - 3 * DPR, y + 2 * DPR, 1.2 * DPR, 4);
+    jitterLine(g, x + spec.size - 2 * DPR, y + 3 * DPR, x + spec.size - 2 * DPR, y + spec.size - 3 * DPR, 1.2 * DPR, 4);
+    jitterLine(g, x + spec.size - 3 * DPR, y + spec.size - 2 * DPR, x + 3 * DPR, y + spec.size - 2 * DPR, 1.2 * DPR, 4);
+    jitterLine(g, x + 2 * DPR, y + spec.size - 3 * DPR, x + 2 * DPR, y + 3 * DPR, 1.2 * DPR, 4);
 
     // cell number (top-left corner, faint pencil)
     const num = scene.add
-      .text(x + 12, y + 10, String(i + 1), {
+      .text(x + 12 * DPR, y + 10 * DPR, String(i + 1), {
         fontFamily: 'Patrick Hand',
-        fontSize: '15px',
+        fontSize: 15 * DPR,
         color: PAPER.inkSoftCss,
       })
       .setOrigin(0.5);
@@ -80,11 +80,11 @@ export function drawBoard(scene: Phaser.Scene, spec: BoardSpec, labelCb: (key: s
     // i18n-aware board labels (start/finish) carry their key in data
     if (i === 0) {
       g.fillStyle(PAPER.red, 1);
-      g.fillTriangle(x + 2, y + 2, x + 26, y + 2, x + 2, y + 26);
+      g.fillTriangle(x + 2 * DPR, y + 2 * DPR, x + 26 * DPR, y + 2 * DPR, x + 2 * DPR, y + 26 * DPR);
       const t = scene.add
-        .text(x + 14, y + 14, labelCb('game.start'), {
+        .text(x + 14 * DPR, y + 14 * DPR, labelCb('game.start'), {
           fontFamily: 'Patrick Hand',
-          fontSize: '11px',
+          fontSize: 11 * DPR,
           color: '#fff6ea',
         })
         .setOrigin(0.5)
@@ -92,11 +92,11 @@ export function drawBoard(scene: Phaser.Scene, spec: BoardSpec, labelCb: (key: s
       labelTexts.push(t);
     } else if (i === LAST_CELL) {
       g.fillStyle(PAPER.green, 1);
-      g.fillTriangle(x + spec.size - 2, y + 2, x + spec.size - 26, y + 2, x + spec.size - 2, y + 26);
+      g.fillTriangle(x + spec.size - 2 * DPR, y + 2 * DPR, x + spec.size - 26 * DPR, y + 2 * DPR, x + spec.size - 2 * DPR, y + 26 * DPR);
       const t = scene.add
-        .text(x + spec.size - 14, y + 14, labelCb('game.finish'), {
+        .text(x + spec.size - 14 * DPR, y + 14 * DPR, labelCb('game.finish'), {
           fontFamily: 'Patrick Hand',
-          fontSize: '11px',
+          fontSize: 11 * DPR,
           color: '#fff6ea',
         })
         .setOrigin(0.5)
@@ -109,7 +109,7 @@ export function drawBoard(scene: Phaser.Scene, spec: BoardSpec, labelCb: (key: s
     if (next) {
       const nc = cellCenter(spec, i + 1);
       g.fillStyle(PAPER.inkSoft, 0.55);
-      arrow(g, c.x, c.y, nc.x, nc.y, 7);
+      arrow(g, c.x, c.y, nc.x, nc.y, 7 * DPR);
     }
   }
 
@@ -135,19 +135,19 @@ export function drawToken(
 ): Phaser.GameObjects.Container {
   const g = scene.add.graphics();
   seedRng(Math.round(x + y + color));
-  const rr = r + (rand() - 0.5) * 2;
+  const rr = r + (rand() - 0.5) * 2 * DPR;
   g.fillStyle(soft, 1);
   g.fillCircle(0, 0, rr);
-  g.lineStyle(2.4, color, 1);
+  g.lineStyle(2.4 * DPR, color, 1);
   const steps = 14;
   for (let i = 0; i < steps; i++) {
     const a1 = (i / steps) * Math.PI * 2;
     const a2 = ((i + 1) / steps) * Math.PI * 2;
     g.lineBetween(
-      Math.cos(a1) * rr + (rand() - 0.5) * 1.6,
-      Math.sin(a1) * rr + (rand() - 0.5) * 1.6,
-      Math.cos(a2) * rr + (rand() - 0.5) * 1.6,
-      Math.sin(a2) * rr + (rand() - 0.5) * 1.6,
+      Math.cos(a1) * rr + (rand() - 0.5) * 1.6 * DPR,
+      Math.sin(a1) * rr + (rand() - 0.5) * 1.6 * DPR,
+      Math.cos(a2) * rr + (rand() - 0.5) * 1.6 * DPR,
+      Math.sin(a2) * rr + (rand() - 0.5) * 1.6 * DPR,
     );
   }
   return scene.add.container(x, y, [g]);
