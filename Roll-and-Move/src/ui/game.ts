@@ -51,6 +51,7 @@ export function createGame(onRestart: () => void): GameView {
 
   // ---------- board ----------
   const board = el('div', 'board');
+  const cells: HTMLElement[] = [];
   for (let i = 0; i < GRID * GRID; i++) {
     const { row, col } = cellPos(i);
     const cell = el('div', 'cell');
@@ -63,25 +64,28 @@ export function createGame(onRestart: () => void): GameView {
       cell.append(el('span', 'arrow', dir));
     }
     board.append(cell);
+    cells.push(cell);
   }
+  // tokens live INSIDE cells; left/top are % of the cell (exact regardless of grid math)
   const tokens = turn.players.map((p, i) => {
     const tk = el('div', `token p${i}`);
     tk.style.background = p.soft;
     tk.style.borderColor = p.color;
-    board.append(tk);
+    cells[0].append(tk);
     return tk;
   });
   const setTokenPos = (pi: number, cell: number, fx = 0.5, fy = 0.5): void => {
-    const { row, col } = cellPos(cell);
-    tokens[pi].style.left = `${((col + fx) * 100) / GRID}%`;
-    tokens[pi].style.top = `${((row + fy) * 100) / GRID}%`;
+    const tk = tokens[pi];
+    cells[cell].append(tk);
+    tk.style.left = `${fx * 100}%`;
+    tk.style.top = `${fy * 100}%`;
   };
   // single token → cell center; both on the same cell → diagonal (red NW, blue SE)
   const updateTokens = (): void => {
     const [a, b] = turn.players;
     const same = a.pos === b.pos;
-    setTokenPos(0, a.pos, same ? 0.25 : 0.5, same ? 0.25 : 0.5);
-    setTokenPos(1, b.pos, same ? 0.75 : 0.5, same ? 0.75 : 0.5);
+    setTokenPos(0, a.pos, same ? 0.27 : 0.5, same ? 0.27 : 0.5);
+    setTokenPos(1, b.pos, same ? 0.73 : 0.5, same ? 0.73 : 0.5);
   };
 
   const boardArea = el('main', 'board-area');
