@@ -63,13 +63,17 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
   codeInput.placeholder = '1234';
   codeInput.maxLength = 4;
   codeInput.inputMode = 'numeric';
+  const joinError = el('div', 'inline-error');
+  joinError.hidden = true;
   const joinBtn = paperButton(t('menu.join'), () => {
     const code = codeInput.value.trim();
     if (!code) {
-      lobby.classList.remove('hidden');
-      lobbyText.textContent = t('game.onlineCodeEmpty');
+      joinError.textContent = t('game.onlineCodeEmpty');
+      joinError.hidden = false;
+      codeInput.focus();
       return;
     }
+    joinError.hidden = true;
     showLobbyStatus(null);
     cb.onJoinRoom(serverValue(), code);
   }, 'menu-start');
@@ -92,7 +96,7 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
   cancelBtn.dataset.i18n = 'menu.cancel';
   lobby.append(lobbyCode, lobbyText, copyBtn, cancelBtn);
 
-  online.append(serverRow, createRow, codeRow, joinRow);
+  online.append(serverRow, createRow, codeRow, joinError, joinRow);
   view.append(topBar, title, online, lobby);
 
   function serverValue(): string {

@@ -205,6 +205,10 @@ body {
   text-align: center;
   line-height: 1.7;
 }
+.inline-error {
+  color: #c94f4f;
+  font-size: 14px;
+}
 
 /* ---------- game layout ---------- */
 .game-shell {
