@@ -168,6 +168,15 @@ body {
   display: flex;
   gap: 8px;
 }
+.topbar .center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .topbar .banner {
   font-size: 19px;
   text-align: left;
@@ -302,26 +311,21 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
 }
 .hint {
   font-size: 16px;
   color: #8a8374;
   min-height: 1.4em;
 }
-.result {
+.center-stack .result {
   font-size: 20px;
   color: #c94f4f;
   min-height: 1.4em;
 }
-.decide {
-  display: flex;
-  gap: 10px;
-}
-
 /* ---------- dice ---------- */
 .dice {
-  width: clamp(64px, 12vmin, 88px);
+  width: clamp(50px, 8.5vmin, 64px);
   aspect-ratio: 1;
   background: #f6f1e5;
   border: 2.5px solid #3b372e;
@@ -349,7 +353,7 @@ body {
     transform: translateY(0) rotate(0deg);
   }
   45% {
-    transform: translateY(-110px) rotate(210deg);
+    transform: translateY(-70px) rotate(210deg);
   }
   100% {
     transform: translateY(0) rotate(360deg);

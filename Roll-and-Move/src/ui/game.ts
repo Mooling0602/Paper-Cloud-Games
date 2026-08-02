@@ -35,6 +35,7 @@ export function createGame(onRestart: () => void): GameView {
   const restartBtn = paperButton(t('game.restart'), onRestart);
   const banner = el('div', 'banner');
   leftGroup.append(restartBtn, banner);
+  const centerGroup = el('div', 'center');
   const right = el('div', 'right');
   const rightBtns = el('div', 'btns');
   const fsBtn = paperButton(t('game.fullscreen'), () => toggleFullscreen(), 'small');
@@ -47,7 +48,7 @@ export function createGame(onRestart: () => void): GameView {
   const pctBtn = paperButton('100%', () => zoom.reset(), 'small');
   rightBtns.append(fsBtn, zoomOutBtn, zoomInBtn, pctBtn);
   right.append(rightBtns, banner);
-  topbar.append(leftGroup, right);
+  topbar.append(leftGroup, centerGroup, right);
 
   // ---------- board ----------
   const board = el('div', 'board');
@@ -115,6 +116,16 @@ export function createGame(onRestart: () => void): GameView {
   };
   setFace(1);
 
+  // roll button (left of dice) + confirm button (right of dice), top center
+  const rollBtn = paperButton('', () => roll());
+  const confirmBtn = paperButton('', () => {
+    if (turn.state !== 'deciding') return;
+    turn.confirmMove();
+    refresh();
+    startMove();
+  });
+  centerGroup.append(rollBtn, dice, confirmBtn);
+
   // ---------- bottom bar ----------
   const bottombar = el('footer', 'bottombar');
   const panels = turn.players.map((p, i) => {
@@ -127,18 +138,8 @@ export function createGame(onRestart: () => void): GameView {
   });
   const centerStack = el('div', 'center-stack');
   const hint = el('div', 'hint');
-  const decide = el('div', 'decide');
-  decide.hidden = true;
-  const rollBtn = paperButton('', () => roll());
-  const confirmBtn = paperButton('', () => {
-    if (turn.state !== 'deciding') return;
-    turn.confirmMove();
-    refresh();
-    startMove();
-  });
-  decide.append(rollBtn, confirmBtn);
   const result = el('div', 'result');
-  centerStack.append(hint, dice, decide, result);
+  centerStack.append(hint, result);
   bottombar.append(panels[0].panel, centerStack, panels[1].panel);
 
   // ---------- win overlay ----------
@@ -166,7 +167,8 @@ export function createGame(onRestart: () => void): GameView {
     result.textContent = turn.lastRoll > 0 ? t('game.result', { n: turn.lastRoll }) : '';
     const idle = turn.state === 'idle';
     const deciding = turn.state === 'deciding';
-    decide.hidden = !(idle || deciding);
+    rollBtn.hidden = !(idle || deciding);
+    confirmBtn.hidden = !deciding;
     rollBtn.textContent = idle ? t('game.rollBtn') : deciding ? t('game.reroll', { n: turn.rollsLeft }) : '';
     confirmBtn.textContent = t('game.confirm');
     setDiceEnabled(idle || deciding);
@@ -189,7 +191,8 @@ export function createGame(onRestart: () => void): GameView {
     }
     rolling = true;
     setDiceEnabled(false);
-    decide.hidden = true;
+    rollBtn.hidden = true;
+    confirmBtn.hidden = true;
     dice.classList.add('rolling');
   };
 
@@ -208,7 +211,8 @@ export function createGame(onRestart: () => void): GameView {
 
   const startMove = (): void => {
     setDiceEnabled(false);
-    decide.hidden = true;
+    rollBtn.hidden = true;
+    confirmBtn.hidden = true;
     const steps = turn.lastRoll;
     const start = turn.player.pos;
     const pi = turn.current;
