@@ -16,6 +16,8 @@ This file documents the coding standards and AI collaboration guidelines for the
 - Before writing any code, a clear, implementable technical plan and design must be established, with no unresolved parts left open.
 - If any part of the plan remains unclear or undecided, ask the user until they explicitly confirm and instruct to start writing code.
 - Any naming or convention (规范) must be proposed to and explicitly confirmed by the user before being adopted; do not establish conventions on your own.
+- Project file trees (directory structures) must not be written into long-term files (e.g. AGENTS.md, README.md); if needed, record them in memory files instead.
+- Game subprojects may have their own `MEMORY.md`.
 - This rule does not apply when the user explicitly lets the AI agent decide on its own.
 
 ### Semantic Commits and Version Management
