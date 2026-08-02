@@ -180,6 +180,7 @@ export function createGame(
       net.send({ t: 'confirm' });
       return;
     }
+    if (net?.isHost && turn.current !== 0) return;
     turn.confirmMove();
     refresh();
     startMove();
@@ -228,11 +229,13 @@ export function createGame(
     result.textContent = turn.lastRoll > 0 ? t('game.result', { n: turn.lastRoll }) : '';
     const idle = turn.state === 'idle';
     const deciding = turn.state === 'deciding';
-    rollBtn.hidden = !(idle || deciding);
-    confirmBtn.hidden = !deciding;
+    // online: only the player whose turn it is may operate
+    const localTurn = !net || (net.isHost ? turn.current === 0 : turn.current === 1);
+    rollBtn.hidden = !(localTurn && (idle || deciding));
+    confirmBtn.hidden = !(localTurn && deciding);
     rollBtn.textContent = idle ? t('game.rollBtn') : deciding ? t('game.reroll', { n: turn.rollsLeft }) : '';
     confirmBtn.textContent = t('game.confirm');
-    setDiceEnabled(idle || deciding);
+    setDiceEnabled(localTurn && (idle || deciding));
     if (net?.isHost) {
       net.send({
         t: 'state',
@@ -260,6 +263,7 @@ export function createGame(
       net.send({ t: 'roll' });
       return;
     }
+    if (net?.isHost && turn.current !== 0) return; // host may only act on its own turn
     if (!turn.canRoll()) {
       // reroll path: only valid while deciding
       if (turn.state !== 'deciding') return;
