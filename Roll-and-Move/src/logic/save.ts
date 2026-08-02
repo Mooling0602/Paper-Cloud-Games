@@ -18,8 +18,12 @@ export function loadGame(): SavedGame | null {
   return save;
 }
 
+/**
+ * A save is only meaningful once someone has actually moved
+ * (not both tokens still sitting on the start cell).
+ */
 export function hasSave(): boolean {
-  return save !== null;
+  return save !== null && (save.positions[0] !== 0 || save.positions[1] !== 0);
 }
 
 export function clearGame(): void {
