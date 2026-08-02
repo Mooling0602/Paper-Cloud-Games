@@ -102,7 +102,7 @@ body {
 
 /* ---------- menu ---------- */
 .menu-title {
-  margin-top: 18vh;
+  margin-top: 10vh;
   font-family: 'Patrick Hand', 'LXGW WenKai', cursive;
   font-size: 76px;
   transform: rotate(-2deg);
@@ -114,7 +114,7 @@ body {
   color: #8a8374;
 }
 .menu-actions {
-  margin-top: 6vh;
+  margin-top: 4vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -133,7 +133,7 @@ body {
 
 /* ---------- online lobby ---------- */
 .online {
-  margin-top: 22px;
+  margin-top: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
