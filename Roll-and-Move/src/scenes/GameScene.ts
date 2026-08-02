@@ -7,6 +7,7 @@ import { BoardSpec, drawBoard, drawToken, cellCenter, LAST_CELL, GRID, Board } f
 import { createDice, Dice } from '../game/dice';
 import { TurnManager } from '../game/turn';
 import { paperButton, PaperButton } from '../ui/paperButton';
+import { safeAreaTop } from '../../../Core/device/screen';
 import { toggleFullscreen, isFullscreen } from '../../../Core/device/fullscreen';
 import { reportDebug } from '../debug';
 
@@ -88,11 +89,13 @@ export class GameScene extends Phaser.Scene {
 
     const w = this.scale.gameSize.width;
     const h = this.scale.gameSize.height;
+    // physical-pixel offset for the opaque system status bar (edge-to-edge)
+    const inset = safeAreaTop() * DPR;
 
     // adaptive board
-    const avail = Math.min(w - MARGIN * 2, h - TOP_BAR - BOTTOM_ZONE - MARGIN);
+    const avail = Math.min(w - MARGIN * 2, h - TOP_BAR - BOTTOM_ZONE - MARGIN - inset);
     const size = Math.floor((avail - (GRID - 1) * GAP) / GRID);
-    const cy = TOP_BAR + (h - TOP_BAR - BOTTOM_ZONE) / 2;
+    const cy = TOP_BAR + inset + (h - TOP_BAR - BOTTOM_ZONE - inset) / 2;
     this.spec = { cx: w / 2, cy, size, gap: GAP };
 
     this.board = drawBoard(this, this.spec, (key) => i18n.t(key));
