@@ -3,17 +3,22 @@ import { i18n } from '../../../Core/i18n/LanguageManager';
 import { ZoomController } from '../../../Core/zoom/ZoomController';
 import { PAPER, FONTS } from '../../../Core/style/paper';
 import { makePaperTexture } from '../style/draw';
-import { BoardSpec, drawBoard, drawToken, cellCenter, LAST_CELL, Board } from '../game/board';
+import { BoardSpec, drawBoard, drawToken, cellCenter, LAST_CELL, GRID, Board } from '../game/board';
 import { createDice, Dice } from '../game/dice';
 import { TurnManager } from '../game/turn';
 import { paperButton, PaperButton } from '../ui/paperButton';
+
+const MARGIN = 16;
+const TOP_BAR = 72;
+const BOTTOM_ZONE = 200;
+const GAP = 8;
 
 export class GameScene extends Phaser.Scene {
   constructor() {
     super('Game');
   }
 
-  private spec: BoardSpec = { cx: 640, cy: 390, size: 96, gap: 8 };
+  private spec!: BoardSpec;
   private board!: Board;
   private turn = new TurnManager();
   private dice!: Dice;
@@ -43,39 +48,67 @@ export class GameScene extends Phaser.Scene {
 
   create(): void {
     const { width, height } = this.scale.gameSize;
-    const unsubs = this.unsubs;
 
     this.add.graphics().fillStyle(PAPER.base, 1).fillRect(0, 0, width, height);
     const noise = makePaperTexture(this);
     this.add.tileSprite(width / 2, height / 2, width, height, noise.key).setAlpha(0.5);
 
-    // board
-    this.board = drawBoard(this, this.spec, (key) => i18n.t(key));
+    const onSpace = () => this.onSpace();
+    this.input.keyboard?.on('keydown-SPACE', onSpace);
+    this.unsubs.push(() => this.input.keyboard?.off('keydown-SPACE', onSpace));
 
-    // tokens
+    this.unsubs.push(i18n.onChanged(() => this.refreshAll()));
+    this.unsubs.push(this.zoom.onChanged(() => this.applyZoom()));
+
+    // keep layout glued to the (resized) page edges without losing game state
+    const onResize = () => this.layout();
+    this.scale.on('resize', onResize);
+    this.unsubs.push(() => this.scale.off('resize', onResize));
+
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.unsubs.forEach((u) => u());
+      this.unsubs.length = 0;
+    });
+
+    this.layout();
+    this.turn.beginTurn();
+    this.refreshAll();
+  }
+
+  /** (Re)build all UI from the current page size: controls hug the edges, the board takes the rest. */
+  private layout(): void {
+    this.board?.clear();
+    this.dice?.destroy();
+    for (const t of this.tokens) t.destroy();
+    this.tokens = [];
+    this.panels = [];
+
+    const w = this.scale.gameSize.width;
+    const h = this.scale.gameSize.height;
+
+    // adaptive board
+    const avail = Math.min(w - MARGIN * 2, h - TOP_BAR - BOTTOM_ZONE - MARGIN);
+    const size = Math.floor((avail - (GRID - 1) * GAP) / GRID);
+    const cy = TOP_BAR + (h - TOP_BAR - BOTTOM_ZONE) / 2;
+    this.spec = { cx: w / 2, cy, size, gap: GAP };
+
+    this.board = drawBoard(this, this.spec, (key) => i18n.t(key));
     for (const p of this.turn.players) {
       this.tokens.push(drawToken(this, 0, 0, p.color, p.soft, 22));
     }
     this.syncTokens();
 
-    // dice (tap handled by its own zone; camera transform included)
-    this.dice = createDice(this, 640, 688, 84, () => void this.onRoll());
-
-    // texts
-    this.banner = this.add
-      .text(width / 2, 66, '', { fontFamily: FONTS.family, fontSize: '36px', color: PAPER.inkCss })
-      .setOrigin(0.5);
+    // bottom zone: dice + decision buttons + hints
+    this.dice = createDice(this, w / 2, h - 110, 84, () => void this.onRoll());
     this.hint = this.add
-      .text(width / 2, 622, '', { fontFamily: FONTS.family, fontSize: '22px', color: PAPER.inkSoftCss })
+      .text(w / 2, h - 186, '', { fontFamily: FONTS.family, fontSize: '22px', color: PAPER.inkSoftCss })
       .setOrigin(0.5);
     this.resultText = this.add
-      .text(width / 2, 756, '', { fontFamily: FONTS.family, fontSize: '26px', color: PAPER.redCss })
+      .text(w / 2, h - 52, '', { fontFamily: FONTS.family, fontSize: '26px', color: PAPER.redCss })
       .setOrigin(0.5);
-
-    // decision buttons (flanking the dice)
     this.rerollBtn = paperButton(this, {
-      x: 480,
-      y: 688,
+      x: w / 2 - 160,
+      y: h - 110,
       width: 150,
       height: 52,
       label: '',
@@ -83,8 +116,8 @@ export class GameScene extends Phaser.Scene {
       onClick: () => this.onReroll(),
     });
     this.confirmBtn = paperButton(this, {
-      x: 800,
-      y: 688,
+      x: w / 2 + 80,
+      y: h - 110,
       width: 130,
       height: 52,
       label: '',
@@ -94,85 +127,94 @@ export class GameScene extends Phaser.Scene {
     this.rerollBtn.setVisible(false);
     this.confirmBtn.setVisible(false);
 
-    // player panels
-    this.panels = this.turn.players.map((p, i) => {
-      const px = i === 0 ? 90 : width - 90;
-      const originX = i === 0 ? 0 : 1;
-      const tok = drawToken(this, px, 712, p.color, p.soft, 17);
-      tok.setDepth(1);
-      const name = this.add
-        .text(px + (i === 0 ? 26 : -26), 696, '', {
-          fontFamily: FONTS.family,
-          fontSize: '22px',
-          color: PAPER.inkCss,
-        })
-        .setOrigin(originX, 0.5);
-      const cell = this.add
-        .text(px + (i === 0 ? 26 : -26), 726, '', {
-          fontFamily: FONTS.family,
-          fontSize: '17px',
-          color: PAPER.inkSoftCss,
-        })
-        .setOrigin(originX, 0.5);
-      return { name, cell, tok };
-    });
-
-    // top controls
+    // top bar: restart (left), turn banner (center), zoom (right)
+    this.banner = this.add
+      .text(w / 2, 36, '', { fontFamily: FONTS.family, fontSize: '36px', color: PAPER.inkCss })
+      .setOrigin(0.5);
     this.restartBtn = paperButton(this, {
-      x: 92,
-      y: 44,
+      x: MARGIN + 70,
+      y: 36,
       width: 140,
       height: 42,
       label: i18n.t('game.restart'),
       fontSize: 18,
       onClick: () => this.scene.restart(),
     });
-    this.zoomControls();
+    paperButton(this, {
+      x: w - 156,
+      y: 36,
+      width: 40,
+      height: 36,
+      label: '−',
+      fontSize: 20,
+      onClick: () => this.zoom.zoomOut(),
+    });
+    paperButton(this, {
+      x: w - 108,
+      y: 36,
+      width: 40,
+      height: 36,
+      label: '+',
+      fontSize: 20,
+      onClick: () => this.zoom.zoomIn(),
+    });
+    this.pctBtn = paperButton(this, {
+      x: w - 48,
+      y: 36,
+      width: 64,
+      height: 36,
+      label: '100%',
+      fontSize: 15,
+      onClick: () => this.zoom.reset(),
+    });
 
-    // win overlay
+    // player panels at bottom corners
+    this.panels = this.turn.players.map((p, i) => {
+      const left = i === 0;
+      const px = left ? 30 : w - 30;
+      const tok = drawToken(this, px, h - 96, p.color, p.soft, 17);
+      tok.setDepth(1);
+      const name = this.add
+        .text(left ? 56 : w - 56, h - 100, '', {
+          fontFamily: FONTS.family,
+          fontSize: '22px',
+          color: PAPER.inkCss,
+        })
+        .setOrigin(left ? 0 : 1, 0.5);
+      const cell = this.add
+        .text(left ? 56 : w - 56, h - 72, '', {
+          fontFamily: FONTS.family,
+          fontSize: '17px',
+          color: PAPER.inkSoftCss,
+        })
+        .setOrigin(left ? 0 : 1, 0.5);
+      return { name, cell, tok };
+    });
+
+    // win overlay (relative to the board)
     this.winText = this.add
-      .text(width / 2, 356, '', { fontFamily: FONTS.heading, fontSize: '64px' })
+      .text(w / 2, this.spec.cy - 40, '', { fontFamily: FONTS.heading, fontSize: '64px' })
       .setOrigin(0.5)
       .setVisible(false);
     this.winRestartBtn = paperButton(this, {
-      x: width / 2,
-      y: 436,
+      x: w / 2,
+      y: this.spec.cy + 70,
       width: 220,
       height: 58,
-      label: i18n.t('game.restart'),
+      label: '',
       fontSize: 24,
       onClick: () => this.scene.restart(),
     });
     this.winRestartBtn.setVisible(false);
 
-    // input: Space rolls or confirms
-    const onSpace = () => this.onSpace();
-    this.input.keyboard?.on('keydown-SPACE', onSpace);
-    unsubs.push(() => this.input.keyboard?.off('keydown-SPACE', onSpace));
-
-    // listeners
-    unsubs.push(i18n.onChanged(() => this.refreshAll()));
-    unsubs.push(
-      this.zoom.onChanged((v) => {
-        this.cameras.main.setZoom(v);
-        this.cameras.main.centerOn(this.spec.cx, this.spec.cy);
-        this.pctBtn.setLabel(`${Math.round(v * 100)}%`);
-      }),
-    );
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      unsubs.forEach((u) => u());
-      this.unsubs.length = 0;
-    });
-
-    this.turn.beginTurn();
-    this.refreshAll();
+    this.applyZoom();
+    if (this.turn.state === 'finished') this.showWin();
   }
 
-  private zoomControls(): void {
-    const y = 44;
-    paperButton(this, { x: 1178, y, width: 40, height: 36, label: '−', fontSize: 20, onClick: () => this.zoom.zoomOut() });
-    paperButton(this, { x: 1226, y, width: 40, height: 36, label: '+', fontSize: 20, onClick: () => this.zoom.zoomIn() });
-    this.pctBtn = paperButton(this, { x: 1276, y, width: 64, height: 36, label: '100%', fontSize: 15, onClick: () => this.zoom.reset() });
+  private applyZoom(): void {
+    this.cameras.main.setZoom(this.zoom.value);
+    this.cameras.main.centerOn(this.spec.cx, this.spec.cy);
+    this.pctBtn?.setLabel(`${Math.round(this.zoom.value * 100)}%`);
   }
 
   private async onRoll(): Promise<void> {
@@ -239,20 +281,24 @@ export class GameScene extends Phaser.Scene {
   private finishMove(): void {
     const won = this.turn.finishMove();
     if (won) {
-      const p = this.turn.player;
-      this.winText
-        .setText(i18n.t('game.win', { player: i18n.t(p.nameKey) }))
-        .setColor(p.color === PAPER.red ? PAPER.redCss : PAPER.blueCss)
-        .setVisible(true);
-      this.winRestartBtn.setVisible(true);
-      this.winText.setScale(0.5).setAlpha(0);
-      this.tweens.add({ targets: this.winText, scale: 1, alpha: 1, duration: 450, ease: 'Back.easeOut' });
+      this.showWin();
       this.resultText.setText(i18n.t('game.result', { n: this.turn.lastRoll }));
       this.refreshAll();
     } else {
       this.refreshAll();
     }
     this.syncTokens();
+  }
+
+  private showWin(): void {
+    const p = this.turn.player;
+    this.winText
+      .setText(i18n.t('game.win', { player: i18n.t(p.nameKey) }))
+      .setColor(p.color === PAPER.red ? PAPER.redCss : PAPER.blueCss)
+      .setVisible(true);
+    this.winRestartBtn.setVisible(true);
+    this.winText.setScale(0.5).setAlpha(0);
+    this.tweens.add({ targets: this.winText, scale: 1, alpha: 1, duration: 450, ease: 'Back.easeOut' });
   }
 
   private syncTokens(): void {
@@ -290,7 +336,6 @@ export class GameScene extends Phaser.Scene {
       panel.tok.setScale(i === t.current ? 1.2 : 1);
     });
 
-    // i18n-aware board labels (start/finish)
     this.board.labelTexts.forEach((txt) => {
       const key = txt.getData('i18nKey') as string | undefined;
       if (key) txt.setText(i18n.t(key));

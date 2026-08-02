@@ -22,7 +22,7 @@ if (isSmallScreen()) {
     height: 800,
     backgroundColor: PAPER.baseCss,
     scale: {
-      mode: Phaser.Scale.FIT,
+      mode: Phaser.Scale.RESIZE,
       autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     scene: [LoadingScene, MenuScene, GameScene],

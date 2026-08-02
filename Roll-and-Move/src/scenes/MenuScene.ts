@@ -79,6 +79,11 @@ export class MenuScene extends Phaser.Scene {
     };
     unsubs.push(i18n.onChanged(refresh));
 
+    // menu has no state to keep; re-layout by restarting on resize
+    const onResize = () => this.scene.restart();
+    this.scale.on('resize', onResize);
+    unsubs.push(() => this.scale.off('resize', onResize));
+
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       unsubs.forEach((u) => u());
       bg.destroy();
