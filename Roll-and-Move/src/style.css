@@ -146,6 +146,7 @@ body {
   transform-origin: 50% 50%;
 }
 .topbar {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
