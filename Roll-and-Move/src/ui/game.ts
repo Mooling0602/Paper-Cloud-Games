@@ -74,6 +74,16 @@ export function createGame(onRestart: () => void): GameView {
     cells[0].append(tk);
     return tk;
   });
+  // constant pixel size derived from the board (independent of cell/state)
+  const applyTokenSize = (): void => {
+    const px = Math.round(board.clientWidth * 0.095);
+    tokens.forEach((tk) => {
+      tk.style.width = `${px}px`;
+      tk.style.height = `${px}px`;
+    });
+  };
+  applyTokenSize();
+  window.addEventListener('resize', applyTokenSize);
   const setTokenPos = (pi: number, cell: number, fx = 0.5, fy = 0.5): void => {
     const tk = tokens[pi];
     cells[cell].append(tk);
