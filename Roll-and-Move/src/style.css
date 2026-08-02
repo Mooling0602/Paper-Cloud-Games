@@ -152,9 +152,16 @@ body {
   gap: 10px;
   padding: 10px 14px;
 }
+.topbar .left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
 .topbar .banner {
-  font-size: 26px;
-  text-align: center;
+  font-size: 19px;
+  text-align: left;
+  padding-left: 4px;
 }
 .topbar .right {
   display: flex;

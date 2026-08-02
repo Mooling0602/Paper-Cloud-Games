@@ -31,8 +31,10 @@ export function createGame(onRestart: () => void): GameView {
   view.append(el('div', 'paper-bg'), gameView);
 
   const topbar = el('header', 'topbar');
+  const leftGroup = el('div', 'left');
   const restartBtn = paperButton(t('game.restart'), onRestart);
   const banner = el('div', 'banner');
+  leftGroup.append(restartBtn, banner);
   const right = el('div', 'right');
   const fsBtn = paperButton(t('game.fullscreen'), () => toggleFullscreen(), 'small');
   const refreshFsLabel = (): void => {
@@ -43,7 +45,7 @@ export function createGame(onRestart: () => void): GameView {
   const zoomInBtn = paperButton('+', () => zoom.zoomIn(), 'small');
   const pctBtn = paperButton('100%', () => zoom.reset(), 'small');
   right.append(fsBtn, zoomOutBtn, zoomInBtn, pctBtn);
-  topbar.append(restartBtn, banner, right);
+  topbar.append(leftGroup, right);
 
   // ---------- board ----------
   const board = el('div', 'board');
