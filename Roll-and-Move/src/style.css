@@ -156,6 +156,10 @@ body {
 .topbar .left {
   position: relative;
 }
+.topbar .left .btns {
+  display: flex;
+  gap: 8px;
+}
 .topbar .right {
   position: relative;
 }

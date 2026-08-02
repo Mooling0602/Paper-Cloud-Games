@@ -67,7 +67,7 @@ async function boot(): Promise<void> {
 
   const showGame = () => {
     current?.destroy();
-    const game = createGame(showGame);
+    const game = createGame(showGame, showMenu);
     app.append(game.view);
     current = { view: game.view, destroy: game.destroy };
   };

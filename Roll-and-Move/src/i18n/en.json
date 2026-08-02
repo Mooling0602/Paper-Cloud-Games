@@ -18,6 +18,7 @@
     "rerollsLeft": "Rerolls left: {n}",
     "win": "{player} wins!",
     "restart": "Play Again",
+    "backMenu": "Back to Menu",
     "fullscreen": "Fullscreen",
     "exitFullscreen": "Exit Fullscreen",
     "cell": "Cell {n}",

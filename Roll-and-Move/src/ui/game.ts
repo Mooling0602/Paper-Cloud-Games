@@ -19,7 +19,7 @@ export interface GameView {
   destroy: () => void;
 }
 
-export function createGame(onRestart: () => void): GameView {
+export function createGame(onRestart: () => void, onBackToMenu: () => void): GameView {
   const t = (key: string, vars?: Record<string, string | number>) => i18n.t(key, vars);
   const turn = new TurnManager();
   const zoom = new ZoomController();
@@ -32,9 +32,12 @@ export function createGame(onRestart: () => void): GameView {
 
   const topbar = el('header', 'topbar');
   const leftGroup = el('div', 'left');
+  const leftBtns = el('div', 'btns');
   const restartBtn = paperButton(t('game.restart'), onRestart);
+  const backBtn = paperButton(t('game.backMenu'), onBackToMenu);
+  leftBtns.append(restartBtn, backBtn);
+  leftGroup.append(leftBtns);
   const banner = el('div', 'banner');
-  leftGroup.append(restartBtn, banner);
   const centerGroup = el('div', 'center');
   const right = el('div', 'right');
   const rightBtns = el('div', 'btns');

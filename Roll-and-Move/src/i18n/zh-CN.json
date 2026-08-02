@@ -18,6 +18,7 @@
     "rerollsLeft": "剩余重投次数：{n}",
     "win": "{player} 获胜！",
     "restart": "再来一局",
+    "backMenu": "返回主菜单",
     "fullscreen": "全屏",
     "exitFullscreen": "退出全屏",
     "cell": "第 {n} 格",
