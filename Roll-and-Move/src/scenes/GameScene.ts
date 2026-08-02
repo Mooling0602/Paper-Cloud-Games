@@ -7,6 +7,7 @@ import { BoardSpec, drawBoard, drawToken, cellCenter, LAST_CELL, GRID, Board } f
 import { createDice, Dice } from '../game/dice';
 import { TurnManager } from '../game/turn';
 import { paperButton, PaperButton } from '../ui/paperButton';
+import { toggleFullscreen } from '../../../Core/device/fullscreen';
 
 const MARGIN = 16;
 const TOP_BAR = 72;
@@ -34,6 +35,7 @@ export class GameScene extends Phaser.Scene {
   private rerollBtn!: PaperButton;
   private confirmBtn!: PaperButton;
   private restartBtn!: PaperButton;
+  private fsBtn!: PaperButton;
   private winText!: Phaser.GameObjects.Text;
   private winRestartBtn!: PaperButton;
   private pctBtn!: PaperButton;
@@ -134,13 +136,22 @@ export class GameScene extends Phaser.Scene {
       .text(w / 2, 36, '', { fontFamily: FONTS.family, fontSize: '36px', color: PAPER.inkCss })
       .setOrigin(0.5);
     this.restartBtn = paperButton(this, {
-      x: MARGIN + 70,
+      x: MARGIN + 90 + 8 + 70,
       y: 36,
       width: 140,
       height: 42,
       label: i18n.t('game.restart'),
       fontSize: 18,
       onClick: () => this.scene.restart(),
+    });
+    this.fsBtn = paperButton(this, {
+      x: MARGIN + 45,
+      y: 36,
+      width: 90,
+      height: 42,
+      label: i18n.t('game.fullscreen'),
+      fontSize: 18,
+      onClick: () => toggleFullscreen(),
     });
     paperButton(this, {
       x: w - 156,
@@ -337,8 +348,8 @@ export class GameScene extends Phaser.Scene {
     this.rerollBtn.setLabel(i18n.t('game.reroll', { n: t.rollsLeft }));
     this.confirmBtn.setLabel(i18n.t('game.confirm'));
     this.restartBtn.setLabel(i18n.t('game.restart'));
+    this.fsBtn.setLabel(i18n.t('game.fullscreen'));
     this.winRestartBtn.setLabel(i18n.t('game.restart'));
-
     this.dice.setEnabled(t.canRoll());
 
     this.panels.forEach((panel, i) => {

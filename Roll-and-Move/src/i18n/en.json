@@ -17,6 +17,7 @@
     "rerollsLeft": "Rerolls left: {n}",
     "win": "{player} wins!",
     "restart": "Play Again",
+    "fullscreen": "Fullscreen",
     "cell": "Cell {n}",
     "start": "Start",
     "finish": "Finish",

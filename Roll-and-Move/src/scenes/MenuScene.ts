@@ -3,6 +3,7 @@ import { i18n } from '../../../Core/i18n/LanguageManager';
 import { PAPER, FONTS } from '../../../Core/style/paper';
 import { makePaperTexture, seedRng, jitterRect } from '../style/draw';
 import { paperButton } from '../ui/paperButton';
+import { enterFullscreen } from '../../../Core/device/fullscreen';
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -48,7 +49,11 @@ export class MenuScene extends Phaser.Scene {
       height: 66,
       label: i18n.t('menu.start'),
       fontSize: 30,
-      onClick: () => this.scene.start('Game'),
+      onClick: () => {
+        // user gesture: hide the browser chrome on tablets (URL bar)
+        void enterFullscreen();
+        this.scene.start('Game');
+      },
     });
 
     const langBtn = paperButton(this, {
