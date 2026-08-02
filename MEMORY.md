@@ -34,3 +34,4 @@
 
 - 小米平板5 + 安卓16，Chrome 浏览器
 12. **生产模式鉴权（2026-08-02）**：`SignalingServer` 支持配置文件 `config.json`（`CONFIG_FILE` 环境变量可覆盖路径）；`authToken` 非空即生产模式——`/info` 与 `/stats` 需 `X-Auth-Token` 请求头（`timingSafeEqual` 比对），未认证访问 `/info` 返回带令牌输入框的登录壳页（localStorage 记住令牌，`?raw=1` 取正文）；无配置文件 = 开发模式全开放。服务器上配置文件在 `~/paper-cloud/config.json`（权限 600），经 quadlet `Volume=` 只读挂载进容器（`/app/config.json`）；`deploy.sh` 从配置文件提取令牌访问 `/stats`；`config.json` 已加入 .gitignore/.dockerignore，仓库只含 `config.example.json`。
+13. **生产模式踩坑（2026-08-02）**：(a) 重构 handler 时静态文件分支仍引用旧变量名 `url`（已改 `[path, query]`）→ 任何静态请求（含游戏页 `/`）直接崩溃；quadlet `Restart=always` 自动重启兜底，但本地测试只测了 /info、/stats 没测 PUBLIC_DIR 静态路径——**改动 HTTP 处理逻辑后必须带 PUBLIC_DIR 回归静态文件**；(b) 登录壳页 `fetch('/info?raw=1')` 绝对路径在子路径挂载（`/play/roll-and-move/`）下解析到站点根 → 误报 invalid token——**子路径挂载的页面内部请求一律用 `location.pathname` 相对拼接**（与 `onlineSetup.ts` 的默认服务器地址推导同理）。

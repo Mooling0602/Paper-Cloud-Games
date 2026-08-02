@@ -61,7 +61,7 @@ This file documents the coding standards and AI collaboration guidelines for the
 - **No game engine**: UI controls and game elements are written with web-native technology (DOM/CSS/TypeScript); canvas is only used when a specific game genuinely needs it
 - Reusable logic shared across games lives in `Core/` at the repository root (device detection, i18n manager, zoom controller, paper style theme)
 - Games are standalone Vite projects in their `<Game-Name>/` directory; monorepo workspace tooling (e.g. pnpm workspaces) is deferred until a second game or a shared package appears
-- Online multiplayer relay: `SignalingServer/` at the repository root (Node.js + ws, dual-stack): hosts the game build (static files) and relays messages between a room's host and guest
+- Online multiplayer relay: `SignalingServer/` at the repository root (Node.js + ws, dual-stack): hosts the game build (static files) and relays messages between a room's host and guest. Optional `config.json` next to `server.ts` (path overridable via `CONFIG_FILE` env): `authToken` set → production mode — `/info` and `/stats` require the `X-Auth-Token` header (`timingSafeEqual`); no config file → dev mode, fully open. The info page shows a token input when unauthenticated; the container mounts the host's `config.json` read-only via quadlet `Volume=`
 
 ## Design Guidelines
 
