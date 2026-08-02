@@ -35,6 +35,7 @@
     "onlineDisconnected": "连接已断开",
     "onlineSaved": "（已自动保存）",
     "onlineError": "连接失败：{msg}",
+    "onlineConnFailed": "连接服务器失败——请检查服务器地址",
     "onlineRoomError": "房间不存在或已满",
     "onlineCodeEmpty": "请输入房间码",
     "onlineCopied": "房间码已复制",

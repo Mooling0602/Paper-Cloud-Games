@@ -143,7 +143,10 @@ async function boot(): Promise<void> {
       onMessage: (m) => msgCb?.(m),
       onDisconnect: () => {
         if (discCb) discCb();
-        else setupRef?.hideLobby(); // lost before the game started
+        else {
+          // lost before the game started — tell the user instead of going silent
+          setupRef?.showError(i18n.t('game.onlineConnFailed'));
+        }
       },
       onError: (msg) => {
         const friendly =

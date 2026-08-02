@@ -35,6 +35,7 @@
     "onlineDisconnected": "Connection lost",
     "onlineSaved": "(auto-saved)",
     "onlineError": "Connection failed: {msg}",
+    "onlineConnFailed": "Failed to connect to the server — check the address",
     "onlineRoomError": "Room not found or full",
     "onlineCodeEmpty": "Enter a room code",
     "onlineCopied": "Room code copied",

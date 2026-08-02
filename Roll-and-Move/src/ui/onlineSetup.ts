@@ -45,6 +45,8 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
   } catch {
     /* ignore */
   }
+  // default: the signaling server runs on the device that serves this page
+  const defaultServer = `${location.hostname}:8787`;
   const serverRow = el('div', 'row');
   const serverLabel = el('label', 'label', t('menu.server'));
   serverLabel.dataset.i18n = 'menu.server';
@@ -109,7 +111,7 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
     } catch {
       /* ignore */
     }
-    return v || 'localhost:8787';
+    return v || defaultServer;
   }
 
   // ---------- code entry overlay ----------
