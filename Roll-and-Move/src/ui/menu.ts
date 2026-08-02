@@ -45,7 +45,9 @@ export function createMenu(cb: MenuCallbacks): MenuView {
     i18n.setLang(i18n.current === 'zh-CN' ? 'en' : 'zh-CN');
   });
   langBtn.dataset.i18n = 'menu.lang';
-  actions.append(startBtn, resumeBtn, resumeOnlineBtn, langBtn);
+  const createBtn = paperButton(t('menu.create'), () => cb.onCreateRoom(serverValue()), 'menu-start');
+  createBtn.dataset.i18n = 'menu.create';
+  actions.append(startBtn, resumeBtn, resumeOnlineBtn, createBtn, langBtn);
 
   // ---------- online section ----------
   const online = el('div', 'online');
@@ -65,8 +67,6 @@ export function createMenu(cb: MenuCallbacks): MenuView {
   serverLabel.dataset.i18n = 'menu.server';
   serverRow.append(serverLabel, serverInput);
 
-  const createBtn = paperButton(t('menu.create'), () => cb.onCreateRoom(serverValue()), 'small');
-  createBtn.dataset.i18n = 'menu.create';
   const codeInput = el('input', 'paper-input code');
   codeInput.type = 'text';
   codeInput.placeholder = '1234';
@@ -76,8 +76,6 @@ export function createMenu(cb: MenuCallbacks): MenuView {
   joinBtn.dataset.i18n = 'menu.join';
   const joinRow = el('div', 'row');
   joinRow.append(codeInput, joinBtn);
-  const createRow = el('div', 'row');
-  createRow.append(createBtn);
 
   const lobby = el('div', 'lobby hidden');
   const lobbyText = el('div', 'lobby-text');
@@ -85,7 +83,7 @@ export function createMenu(cb: MenuCallbacks): MenuView {
   cancelBtn.dataset.i18n = 'menu.cancel';
   lobby.append(lobbyText, cancelBtn);
 
-  online.append(onlineTitle, serverRow, createRow, joinRow, lobby);
+  online.append(onlineTitle, serverRow, joinRow, lobby);
   view.append(title, subtitle, actions, online);
 
   const credit = el('div', 'menu-credit', t('menu.credit'));
