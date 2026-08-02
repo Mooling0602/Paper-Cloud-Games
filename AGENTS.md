@@ -62,3 +62,7 @@ This file documents the coding standards and AI collaboration guidelines for the
 - **Small screens (phones, etc.)**: lowest priority; detect the device screen size and **completely block entry** with a friendly message — mobile users cannot use the game
 - **Testing**: tablets of any OS, any PC, and the Chrome browser
 - **Layout**: games must be responsive to the web page size, with good zoom/scale adjustment support
+- **Zoom strategy**: browser zoom by default, plus a built-in in-game zoom system that is always available; when browser zoom conflicts with game interaction (per game), disable browser zoom and use the built-in zoom instead
+  - Browser touch pinch zoom must be disabled within the game area (e.g. `touch-action`) to avoid conflicts with multi-touch gameplay; keyboard/mouse browser zoom (Ctrl+±, Ctrl+wheel) is preserved
+  - The built-in zoom scales the game view: anchored at the viewport center, with percentage steps (e.g. 100% → 125% → 150% …), showing the current level and a "reset to 100%" control
+  - Division of labor: browser zoom = page level, built-in zoom = game view level; the game view should fill the viewport, and the built-in zoom scales the rendered view within it
