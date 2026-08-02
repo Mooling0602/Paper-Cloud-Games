@@ -6,6 +6,7 @@ import zhCN from './i18n/zh-CN.json';
 import { setupErrorReporting, reportDebug } from './debug';
 import { createLoading } from './ui/loading';
 import { createMenu, type MenuView } from './ui/menu';
+import { createOnlineSetup, type OnlineSetupView } from './ui/onlineSetup';
 import { createGame, type NetLink } from './ui/game';
 import { OnlineSession, type NetRole } from './net/online';
 import {
@@ -63,6 +64,7 @@ async function boot(): Promise<void> {
 
   let current: { view: HTMLElement; destroy: () => void } | null = null;
   let menuRef: MenuView | null = null;
+  let setupRef: OnlineSetupView | null = null;
   let session: OnlineSession | null = null;
 
   const teardownNet = (): void => {
@@ -73,19 +75,36 @@ async function boot(): Promise<void> {
   const showMenu = () => {
     current?.destroy();
     teardownNet();
+    setupRef = null;
     const menu = createMenu({
       onStart: () => showGame(),
       onResume: hasLocalSave() ? () => showGame(loadLocalGame() ?? undefined) : undefined,
       onResumeOnline: hasOnlineSave()
-        ? () => startLobby(loadOnlineGame() ?? undefined, 'host', undefined)
+        ? () => showOnlineSetup(loadOnlineGame() ?? undefined, 'host')
         : undefined,
-      onCreateRoom: (server) => startLobby(undefined, 'host', undefined, server),
-      onJoinRoom: (server, code) => startLobby(undefined, 'guest', code, server),
-      onCancelLobby: () => teardownNet(),
+      onOnlinePlay: () => showOnlineSetup(),
     });
     app.append(menu.view);
     current = { view: menu.view, destroy: menu.destroy };
     menuRef = menu;
+  };
+
+  const showOnlineSetup = (initial?: SavedGame, autoRole?: NetRole) => {
+    current?.destroy();
+    teardownNet();
+    menuRef = null;
+    const setup = createOnlineSetup({
+      onCreateRoom: (server) => startLobby(undefined, 'host', undefined, server),
+      onJoinRoom: (server, code) => startLobby(undefined, 'guest', code, server),
+      onCancelLobby: () => teardownNet(),
+      onBack: () => showMenu(),
+    });
+    app.append(setup.view);
+    current = { view: setup.view, destroy: setup.destroy };
+    setupRef = setup;
+    if (initial && autoRole) {
+      startLobby(initial, autoRole);
+    }
   };
 
   const showGame = (initial?: SavedGame, net?: NetLink) => {
@@ -120,15 +139,15 @@ async function boot(): Promise<void> {
       url,
       role,
       code,
-      onCreated: (c) => menuRef?.showLobby(c),
+      onCreated: (c) => setupRef?.showLobby(c),
       onOpen: () => showGame(initial, link),
       onMessage: (m) => msgCb?.(m),
       onDisconnect: () => {
         if (discCb) discCb();
-        else menuRef?.hideLobby(); // lost before the game started
+        else setupRef?.hideLobby(); // lost before the game started
       },
       onError: (msg) => {
-        menuRef?.showError(i18n.t('game.onlineError', { msg }));
+        setupRef?.showError(i18n.t('game.onlineError', { msg }));
         reportDebug('online-error', { msg });
       },
     });

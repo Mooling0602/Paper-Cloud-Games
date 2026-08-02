@@ -11,6 +11,7 @@
     "server": "Server address",
     "create": "Create Room",
     "join": "Join Room",
+    "onlinePlay": "Online Play",
     "code": "Room code",
     "cancel": "Cancel",
     "lang": "中文（简体）",
