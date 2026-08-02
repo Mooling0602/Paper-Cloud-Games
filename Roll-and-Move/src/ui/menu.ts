@@ -17,6 +17,8 @@ export interface MenuView {
   destroy: () => void;
   /** Show the lobby status (room code, or connecting). */
   showLobby: (code: string | null) => void;
+  /** Show an error in the lobby area. */
+  showError: (msg: string) => void;
   /** Clear the lobby status (error/back). */
   hideLobby: () => void;
 }
@@ -45,7 +47,10 @@ export function createMenu(cb: MenuCallbacks): MenuView {
     i18n.setLang(i18n.current === 'zh-CN' ? 'en' : 'zh-CN');
   });
   langBtn.dataset.i18n = 'menu.lang';
-  const createBtn = paperButton(t('menu.create'), () => cb.onCreateRoom(serverValue()), 'menu-start');
+  const createBtn = paperButton(t('menu.create'), () => {
+    showLobbyStatus(null);
+    cb.onCreateRoom(serverValue());
+  }, 'menu-start');
   createBtn.dataset.i18n = 'menu.create';
   actions.append(startBtn, resumeBtn, resumeOnlineBtn, createBtn, langBtn);
 
@@ -72,7 +77,10 @@ export function createMenu(cb: MenuCallbacks): MenuView {
   codeInput.placeholder = '1234';
   codeInput.maxLength = 4;
   codeInput.inputMode = 'numeric';
-  const joinBtn = paperButton(t('menu.join'), () => cb.onJoinRoom(serverValue(), codeInput.value.trim()), 'small');
+  const joinBtn = paperButton(t('menu.join'), () => {
+    showLobbyStatus(null);
+    cb.onJoinRoom(serverValue(), codeInput.value.trim());
+  }, 'small');
   joinBtn.dataset.i18n = 'menu.join';
   const joinRow = el('div', 'row');
   joinRow.append(codeInput, joinBtn);
@@ -103,13 +111,19 @@ export function createMenu(cb: MenuCallbacks): MenuView {
   const menu: MenuView = {
     view,
     destroy: () => unsub(),
-    showLobby: (code: string | null) => {
+    showLobby: (code: string | null) => showLobbyStatus(code),
+    showError: (msg: string) => {
       lobby.classList.remove('hidden');
-      lobbyText.textContent =
-        code !== null ? t('game.onlineWaiting', { code }) : t('game.onlineConnecting');
+      lobbyText.textContent = msg;
     },
     hideLobby: () => lobby.classList.add('hidden'),
   };
+
+  function showLobbyStatus(code: string | null): void {
+    lobby.classList.remove('hidden');
+    lobbyText.textContent =
+      code !== null ? t('game.onlineWaiting', { code }) : t('game.onlineConnecting');
+  }
 
   const refresh = () => {
     view.querySelectorAll<HTMLElement>('[data-i18n]').forEach((n) => {

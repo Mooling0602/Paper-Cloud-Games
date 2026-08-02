@@ -128,7 +128,7 @@ async function boot(): Promise<void> {
         else menuRef?.hideLobby(); // lost before the game started
       },
       onError: (msg) => {
-        menuRef?.hideLobby();
+        menuRef?.showError(i18n.t('game.onlineError', { msg }));
         reportDebug('online-error', { msg });
       },
     });
