@@ -118,18 +118,14 @@ export function createGame(onRestart: () => void): GameView {
   const hint = el('div', 'hint');
   const decide = el('div', 'decide');
   decide.hidden = true;
-  const rerollBtn = paperButton('', () => {
-    if (turn.state !== 'deciding') return;
-    turn.reroll();
-    refresh();
-  });
+  const rollBtn = paperButton('', () => roll());
   const confirmBtn = paperButton('', () => {
     if (turn.state !== 'deciding') return;
     turn.confirmMove();
     refresh();
     startMove();
   });
-  decide.append(rerollBtn, confirmBtn);
+  decide.append(rollBtn, confirmBtn);
   const result = el('div', 'result');
   centerStack.append(hint, dice, decide, result);
   bottombar.append(panels[0].panel, centerStack, panels[1].panel);
@@ -157,11 +153,12 @@ export function createGame(onRestart: () => void): GameView {
     else right.append(banner);
     hint.textContent = turn.state === 'deciding' ? t('game.rerollsLeft', { n: turn.rollsLeft }) : t('game.roll');
     result.textContent = turn.lastRoll > 0 ? t('game.result', { n: turn.lastRoll }) : '';
+    const idle = turn.state === 'idle';
     const deciding = turn.state === 'deciding';
-    decide.hidden = !deciding;
-    rerollBtn.textContent = t('game.reroll', { n: turn.rollsLeft });
+    decide.hidden = !(idle || deciding);
+    rollBtn.textContent = idle ? t('game.rollBtn') : deciding ? t('game.reroll', { n: turn.rollsLeft }) : '';
     confirmBtn.textContent = t('game.confirm');
-    setDiceEnabled(turn.canRoll());
+    setDiceEnabled(idle || deciding);
     tokens.forEach((tk, i) => tk.classList.toggle('current', i === turn.current));
     panels.forEach((panel, i) => {
       const pl = turn.players[i];
@@ -173,7 +170,12 @@ export function createGame(onRestart: () => void): GameView {
 };
 
   const roll = (): void => {
-    if (!turn.canRoll() || rolling) return;
+    if (rolling) return;
+    if (!turn.canRoll()) {
+      // reroll path: only valid while deciding
+      if (turn.state !== 'deciding') return;
+      turn.reroll();
+    }
     rolling = true;
     setDiceEnabled(false);
     decide.hidden = true;

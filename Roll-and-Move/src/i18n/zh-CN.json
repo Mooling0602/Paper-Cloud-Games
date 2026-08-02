@@ -11,6 +11,7 @@
   "game": {
     "turn": "{player} 的回合",
     "roll": "点击骰子掷骰",
+    "rollBtn": "投掷",
     "reroll": "重投（剩 {n} 次）",
     "confirm": "走棋",
     "result": "掷出 {n} 点",

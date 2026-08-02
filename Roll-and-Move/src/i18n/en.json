@@ -11,6 +11,7 @@
   "game": {
     "turn": "{player}'s turn",
     "roll": "Tap the dice to roll",
+    "rollBtn": "Roll",
     "reroll": "Reroll ({n})",
     "confirm": "Move",
     "result": "Rolled {n}",
