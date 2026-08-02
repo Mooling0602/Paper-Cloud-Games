@@ -80,19 +80,31 @@ export class OnlineSession {
 
   private setupPeer(): void {
     if (this.pc) return;
+    reportDebug('online', { ev: 'setup-peer', role: this.opts.role });
     const pc = new RTCPeerConnection({ iceServers: [] }); // pure IPv6 direct, no STUN
     this.pc = pc;
     pc.onicecandidate = (e) => {
-      if (e.candidate) this.server({ t: 'signal', data: { ice: e.candidate.toJSON() } });
+      if (e.candidate) {
+        reportDebug('online', { ev: 'ice', proto: e.candidate.protocol, addr: e.candidate.address });
+        this.server({ t: 'signal', data: { ice: e.candidate.toJSON() } });
+      }
     };
     pc.onconnectionstatechange = () => {
       const s = pc.connectionState;
+      reportDebug('online', { ev: 'conn-state', state: s });
       if (s === 'failed' || s === 'closed') this.fail();
     };
     if (this.opts.role === 'host') {
       const dc = pc.createDataChannel('game');
       this.dc = dc;
-      dc.onopen = () => this.opts.onOpen();
+      dc.onopen = () => {
+        reportDebug('online', { ev: 'dc-open', role: 'host' });
+        this.opts.onOpen();
+      };
+      dc.onclose = () => {
+        reportDebug('online', { ev: 'dc-close', role: 'host' });
+        this.fail();
+      };
       dc.onmessage = (e) => this.opts.onMessage(JSON.parse(String(e.data)));
       void pc
         .createOffer()
@@ -101,7 +113,14 @@ export class OnlineSession {
     } else {
       pc.ondatachannel = (e) => {
         this.dc = e.channel;
-        e.channel.onopen = () => this.opts.onOpen();
+        e.channel.onopen = () => {
+          reportDebug('online', { ev: 'dc-open', role: 'guest' });
+          this.opts.onOpen();
+        };
+        e.channel.onclose = () => {
+          reportDebug('online', { ev: 'dc-close', role: 'guest' });
+          this.fail();
+        };
         e.channel.onmessage = (m) => this.opts.onMessage(JSON.parse(String(m.data)));
       };
     }
@@ -111,6 +130,7 @@ export class OnlineSession {
     const pc = this.pc;
     if (!pc) return;
     if (data.desc) {
+      reportDebug('online', { ev: 'signal-desc', type: data.desc.type, role: this.opts.role });
       void pc
         .setRemoteDescription(data.desc)
         .then(() => {
