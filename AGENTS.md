@@ -1,0 +1,38 @@
+# AGENTS.md
+
+This file documents the coding standards and AI collaboration guidelines for the Paper Cloud Games repository. Both human developers and AI coding assistants should follow it.
+
+## Coding Standards
+
+### Semantic Commits and Version Management
+
+**Commit messages follow Conventional Commits**
+
+- Format: `<type>(<scope>): <description>`
+- `type` must be one of the following:
+  - `feat`: a new feature
+  - `fix`: a bug fix
+  - `docs`: documentation (README, LICENSE, AGENTS.md, etc.)
+  - `style`: formatting or style changes (no logic change)
+  - `refactor`: refactoring (no feature change, no bug fix)
+  - `perf`: performance improvement
+  - `test`: tests
+  - `build`: build system or dependency changes
+  - `ci`: CI configuration changes
+  - `chore`: miscellaneous changes (not covered by the above)
+  - `revert`: revert a commit
+- `scope` is optional, e.g. `docs`, `games/xxx`
+- Breaking changes: add `!` after `type` (e.g. `feat!:`), and describe the `BREAKING CHANGE` in the body or footer
+
+**Versioning follows Semantic Versioning (SemVer)**
+
+- Version format: `MAJOR.MINOR.PATCH`
+- `MAJOR`: incompatible API changes (breaking changes)
+- `MINOR`: backward-compatible new features
+- `PATCH`: backward-compatible bug fixes
+- During `0.x` (pre-1.0.0): `MINOR` increments may include breaking changes
+- Version tags use the `v` prefix, e.g. `v0.1.0`
+
+**Miscellaneous**
+
+- Each game subproject must maintain its own `AGENTS.md` in its directory (to be added when creating the game project).
