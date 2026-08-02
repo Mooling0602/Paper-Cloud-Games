@@ -224,6 +224,7 @@ export class GameScene extends Phaser.Scene {
 
     // report layout numbers to the dev log (readable by the developer)
     const vv = window.visualViewport;
+    const canvasRect = this.game.canvas.getBoundingClientRect();
     reportDebug('layout', {
       win: `${window.innerWidth}x${window.innerHeight}`,
       vv: vv ? `${Math.round(vv.width)}x${Math.round(vv.height)}@${Math.round(vv.offsetTop)}` : 'n/a',
@@ -234,6 +235,12 @@ export class GameScene extends Phaser.Scene {
       topBar: TOP_BAR,
       bottomZone: BOTTOM_ZONE,
       fullscreen: isFullscreen(),
+      dpr: window.devicePixelRatio,
+      canvasTop: Math.round(canvasRect.top),
+      canvasLeft: Math.round(canvasRect.left),
+      canvasSize: `${Math.round(canvasRect.width)}x${Math.round(canvasRect.height)}`,
+      avail: `${screen.availWidth}x${screen.availHeight}`,
+      orient: screen.orientation?.type ?? 'n/a',
     });
   }
 
