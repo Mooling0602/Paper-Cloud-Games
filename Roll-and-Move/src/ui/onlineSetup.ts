@@ -80,7 +80,10 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
 
   const lobby = el('div', 'lobby hidden');
   const lobbyText = el('div', 'lobby-text');
-  const cancelBtn = paperButton(t('menu.cancel'), () => cb.onCancelLobby(), 'small');
+  const cancelBtn = paperButton(t('menu.cancel'), () => {
+    lobby.classList.add('hidden');
+    cb.onCancelLobby();
+  }, 'small');
   cancelBtn.dataset.i18n = 'menu.cancel';
   lobby.append(lobbyText, cancelBtn);
 

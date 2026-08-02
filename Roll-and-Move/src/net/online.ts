@@ -1,3 +1,5 @@
+import { reportDebug } from '../debug';
+
 /**
  * Online session: signaling-server pairing + WebRTC DataChannel (pure IPv6 P2P).
  * Signaling only exchanges SDP/ICE; all game messages go over the DataChannel.
@@ -43,6 +45,7 @@ export class OnlineSession {
     }
     this.ws = ws;
     ws.onopen = () => {
+      reportDebug('online', { ev: 'ws-open', url: this.opts.url });
       ws.send(JSON.stringify(
         this.opts.role === 'host' ? { t: 'create' } : { t: 'join', code: this.opts.code },
       ));
@@ -54,7 +57,10 @@ export class OnlineSession {
       } catch {
         return;
       }
-      if (msg.t === 'created' && this.opts.onCreated) this.opts.onCreated(String(msg.code));
+      if (msg.t === 'created' && this.opts.onCreated) {
+        reportDebug('online', { ev: 'created', code: msg.code });
+        this.opts.onCreated(String(msg.code));
+      }
       else if (msg.t === 'joined' || msg.t === 'peer-ready') this.setupPeer();
       else if (msg.t === 'signal') this.onSignal(msg.data as { desc?: RTCSessionDescriptionInit; ice?: RTCIceCandidateInit });
       else if (msg.t === 'error') {
@@ -62,8 +68,14 @@ export class OnlineSession {
       }
       else if (msg.t === 'peer-left') this.fail();
     };
-    ws.onclose = () => this.fail();
-    ws.onerror = () => this.fail();
+    ws.onclose = () => {
+      reportDebug('online', { ev: 'ws-close' });
+      this.fail();
+    };
+    ws.onerror = () => {
+      reportDebug('online', { ev: 'ws-error' });
+      this.fail();
+    };
   }
 
   private setupPeer(): void {
