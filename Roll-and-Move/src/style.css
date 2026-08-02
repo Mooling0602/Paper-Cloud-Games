@@ -154,16 +154,10 @@ body {
   padding: 10px 14px;
 }
 .topbar .left {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
+  position: relative;
 }
 .topbar .right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 3px;
+  position: relative;
 }
 .topbar .right .btns {
   display: flex;
@@ -179,11 +173,18 @@ body {
   gap: 12px;
 }
 .topbar .banner {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 0;
   font-size: 19px;
   text-align: left;
   padding-left: 4px;
+  white-space: nowrap;
+  z-index: 5;
 }
 .topbar .banner.right-side {
+  left: auto;
+  right: 0;
   text-align: right;
   padding-left: 0;
   padding-right: 4px;
