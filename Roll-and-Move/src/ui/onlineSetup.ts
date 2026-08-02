@@ -58,32 +58,35 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
   const createRow = el('div', 'row');
   createRow.append(createBtn);
 
-  const codeInput = el('input', 'paper-input code');
-  codeInput.type = 'text';
-  codeInput.placeholder = '1234';
-  codeInput.maxLength = 4;
-  codeInput.inputMode = 'numeric';
-  const joinError = el('div', 'inline-error');
-  joinError.hidden = true;
-  const joinBtn = paperButton(t('menu.join'), () => {
-    const code = codeInput.value.trim();
-    if (!code) {
-      joinError.textContent = t('game.onlineCodeEmpty');
-      joinError.hidden = false;
-      codeInput.focus();
-      return;
-    }
-    joinError.hidden = true;
-    showLobbyStatus(null);
-    cb.onJoinRoom(serverValue(), code);
-  }, 'menu-start');
+  // ---------- full-screen room code entry ----------
+  const joinBtn = paperButton(t('menu.join'), () => openCodeOverlay(), 'menu-start');
   joinBtn.dataset.i18n = 'menu.join';
-  const codeRow = el('div', 'row');
-  codeRow.append(codeInput);
   const joinRow = el('div', 'row');
   joinRow.append(joinBtn);
 
-  // big full-screen lobby overlay — impossible to miss
+  const codeOverlay = el('div', 'overlay hidden');
+  const codeTitle = el('div', 'code-title', t('menu.code'));
+  codeTitle.dataset.i18n = 'menu.code';
+  const codeDigits = el('span', 'code-digits');
+  const codeCursor = el('span', 'code-cursor', '_');
+  const codeDisplay = el('div', 'code-display');
+  codeDisplay.append(codeDigits, codeCursor);
+  // hidden input that summons the soft keyboard; digits are shown by codeDisplay
+  const hiddenInput = el('input', 'code-hidden-input');
+  hiddenInput.type = 'tel';
+  hiddenInput.inputMode = 'numeric';
+  hiddenInput.maxLength = 4;
+  const codeError = el('div', 'inline-error');
+  codeError.hidden = true;
+  const overlayBtns = el('div', 'row');
+  const overlayJoinBtn = paperButton(t('menu.join'), () => submitCode());
+  overlayJoinBtn.dataset.i18n = 'menu.join';
+  const overlayCancelBtn = paperButton(t('menu.cancel'), () => closeCodeOverlay());
+  overlayCancelBtn.dataset.i18n = 'menu.cancel';
+  overlayBtns.append(overlayJoinBtn, overlayCancelBtn);
+  codeOverlay.append(codeTitle, codeDisplay, hiddenInput, codeError, overlayBtns);
+
+  // ---------- lobby overlay ----------
   const lobby = el('div', 'overlay hidden');
   const lobbyCode = el('div', 'lobby-code', '—');
   const lobbyText = el('div', 'lobby-text');
@@ -96,8 +99,8 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
   cancelBtn.dataset.i18n = 'menu.cancel';
   lobby.append(lobbyCode, lobbyText, copyBtn, cancelBtn);
 
-  online.append(serverRow, createRow, codeRow, joinError, joinRow);
-  view.append(topBar, title, online, lobby);
+  online.append(serverRow, createRow, joinRow);
+  view.append(topBar, title, online, codeOverlay, lobby);
 
   function serverValue(): string {
     const v = serverInput.value.trim();
@@ -109,6 +112,43 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
     return v || 'localhost:8787';
   }
 
+  // ---------- code entry overlay ----------
+  function openCodeOverlay(): void {
+    hiddenInput.value = '';
+    codeDigits.textContent = '';
+    codeError.hidden = true;
+    codeOverlay.classList.remove('hidden');
+    hiddenInput.focus();
+  }
+
+  function closeCodeOverlay(): void {
+    codeOverlay.classList.add('hidden');
+    hiddenInput.blur();
+  }
+
+  hiddenInput.addEventListener('input', () => {
+    hiddenInput.value = hiddenInput.value.replace(/\D/g, '').slice(0, 4);
+    codeDigits.textContent = hiddenInput.value;
+    codeError.hidden = true;
+  });
+  hiddenInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submitCode();
+    if (e.key === 'Escape') closeCodeOverlay();
+  });
+
+  function submitCode(): void {
+    const code = hiddenInput.value.trim();
+    if (!code) {
+      codeError.textContent = t('game.onlineCodeEmpty');
+      codeError.hidden = false;
+      return;
+    }
+    closeCodeOverlay();
+    showLobbyStatus(null);
+    cb.onJoinRoom(serverValue(), code);
+  }
+
+  // ---------- lobby overlay ----------
   function showLobbyStatus(code: string | null): void {
     lobby.classList.remove('hidden');
     lobbyCode.textContent = code ?? '—';

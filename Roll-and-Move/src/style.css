@@ -210,6 +210,39 @@ body {
   font-size: 14px;
 }
 
+/* ---------- full-screen room code entry ---------- */
+.code-title {
+  font-size: 22px;
+  color: #8a8374;
+}
+.code-display {
+  font-family: 'Patrick Hand', 'LXGW WenKai', cursive;
+  font-size: 88px;
+  color: #3b372e;
+  letter-spacing: 0.15em;
+  min-height: 1.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.code-cursor {
+  color: #c94f4f;
+  animation: cursor-blink 1s step-start infinite;
+  margin-left: 4px;
+}
+@keyframes cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.code-hidden-input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
 /* ---------- game layout ---------- */
 .game-shell {
   position: absolute;
