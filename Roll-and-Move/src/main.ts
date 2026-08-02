@@ -1,6 +1,5 @@
 import './style.css';
 import { i18n } from '../../Core/i18n/LanguageManager';
-import { isSmallScreen, getViewport } from '../../Core/device/screen';
 import en from './i18n/en.json';
 import zhCN from './i18n/zh-CN.json';
 import { setupErrorReporting, reportDebug } from './debug';
@@ -25,11 +24,8 @@ setupErrorReporting();
 
 const app = document.getElementById('app')!;
 
-if (isSmallScreen()) {
-  showBlockedPage();
-} else {
-  void boot();
-}
+// small-screen blocking is temporarily disabled for testing
+void boot();
 
 async function boot(): Promise<void> {
   // debug info overlay (?debug=1)
@@ -161,12 +157,4 @@ async function boot(): Promise<void> {
   showMenu();
 }
 
-function showBlockedPage(): void {
-  const vp = getViewport();
-  app.innerHTML = `
-    <div class="blocked">
-      <h1>${i18n.t('blocked.title')}</h1>
-      <p>${i18n.t('blocked.msg')}</p>
-      <p class="dim">${i18n.t('blocked.dim', { w: vp.width, h: vp.height })}</p>
-    </div>`;
-}
+
