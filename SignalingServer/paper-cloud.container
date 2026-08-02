@@ -1,0 +1,13 @@
+[Unit]
+Description=Paper Cloud Games relay server
+
+[Container]
+Image=ghcr.nju.edu.cn/mooling0602/paper-cloud-games:latest
+ContainerName=paper-cloud
+PublishPort=127.0.0.1:8787:8787
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

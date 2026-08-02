@@ -65,6 +65,6 @@ if [ -n "$rooms" ] && [ "$rooms" != "0" ]; then
   exit 0
 fi
 
-podman rm -f paper-cloud >/dev/null 2>&1 || true
-podman run -d --name paper-cloud --restart=always -p 127.0.0.1:8787:8787 "$IMG" >/dev/null
+# restart the quadlet-managed container with the freshly pulled image
+systemctl --user restart paper-cloud.service
 echo "$(date +%H:%M) redeployed"
