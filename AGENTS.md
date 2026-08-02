@@ -49,3 +49,15 @@ This file documents the coding standards and AI collaboration guidelines for the
 **Miscellaneous**
 
 - Each game subproject must maintain its own `AGENTS.md` in its directory (to be added when creating the game project).
+
+## Design Guidelines
+
+- **Game types**: mainly board games (桌游). Requirements:
+  - Touch-friendly, supporting multi-touch
+  - Same-screen multiplayer (multiple players on one device)
+  - LAN or remote online multiplayer
+- **Primary target**: tablets (convenient for same-screen multiplayer); local keyboard/mouse and gamepad support are also required
+- **Adaptation priority**: multi-touch > keyboard/mouse > gamepad (gamepad must support multiple devices for split-play)
+- **Small screens (phones, etc.)**: lowest priority; detect the device screen size and show a friendly blocking message on small screens
+- **Testing**: tablets of any OS, any PC, and the Chrome browser
+- **Layout**: games must be responsive to the web page size, with good zoom/scale adjustment support
