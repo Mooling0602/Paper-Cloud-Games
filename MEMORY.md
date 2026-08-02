@@ -26,7 +26,8 @@
 6. **monorepo 包管理工具（如 pnpm workspace）与共享包结构**：待出现第二个游戏或共享包时再定（需用户确认）。
 7. **小屏完全拦截（手机等）**：测试期间**暂时移除**，测试完成后恢复（根 AGENTS.md 已同步标注；`Core/device/screen.ts` 的 `isSmallScreen` 保留备用）。
 8. **联机架构变更（2026-08-02）**：废弃 WebRTC P2P（安全上下文/flag/NAT 门槛过高），改为**服务器中继**（`SignalingServer/` 托管游戏 + 全量消息转发，主机权威保留）；WebSocket 无需安全上下文，Chrome flag/自签名证书方案全部废弃。云部署（Podman + Nginx）待本地中继验证通过后进行。
-9. **生产部署（2026-08-02）**：`https://clemooling.top/play/roll-and-move/`——Podman 容器（`SignalingServer/Dockerfile`，绑定 127.0.0.1:8787）+ 服务器 nginx 前缀剥离反代（`/play/roll-and-move/` → `:8787/`，`proxyWebsockets`）；Termux 无法构建容器镜像（无 podman），改为服务器上 `podman build`；NixOS `cache.nixos.org` 不稳定，构建需临时加 USTC 镜像 `--option substituters`；镜像更新流程：本地 `npm run build` → 打包 → scp → 服务器 `podman build -t paper-cloud:latest` → 重建容器。
+9. **生产部署（2026-08-02）**：`https://clemooling.top/play/roll-and-move/`——Podman 容器（`SignalingServer/Dockerfile`，绑定 127.0.0.1:8787）+ 服务器 nginx 前缀剥离反代（`/play/roll-and-move/` → `:8787/`，`proxyWebsockets`）；Termux 无法构建容器镜像（无 podman），改为服务器上 `podman build`；NixOS `cache.nixos.org` 不稳定，构建需临时加 USTC 镜像 `--option substituters`。
+10. **自动部署（2026-08-02）**：GitHub Actions（`.github/workflows/build-image.yml`）在 main 推送后自动构建镜像推 GHCR（`ghcr.io/mooling0602/paper-cloud-games`，公开）；服务器 systemd 用户定时器每 5 分钟跑 `SignalingServer/deploy.sh`：pull → digest 比对 → 有更新则等 `/stats` 显示 0 活跃房间（每 10 秒轮询、最长 10 分钟、二次确认）→ 重建容器（玩家永不被中途断开）；`loginctl enable-linger` 已启用；旧的手动打包流程废弃。
 
 ## 当前测试设备
 

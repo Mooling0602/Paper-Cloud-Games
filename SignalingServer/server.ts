@@ -37,6 +37,14 @@ const MIME: Record<string, string> = {
 
 const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
   const url = (req.url ?? '/').split('?')[0];
+  // /stats reports how many rooms are currently open (host in lobby or
+  // mid-game) — the deployment script waits until this is 0 before
+  // recreating the container so players are never cut off mid-session.
+  if (url === '/stats') {
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ activeRooms: rooms.size }));
+    return;
+  }
   // /info is always the info page; / is the game when PUBLIC_DIR is set
   if (url === '/info' || (!PUBLIC_DIR && url === '/')) {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
