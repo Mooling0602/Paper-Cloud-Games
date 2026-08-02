@@ -130,6 +130,14 @@ body {
   font-size: 17px;
   color: #8a8374;
 }
+.menu-credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.menu-credit a:active {
+  color: #6b6457;
+}
 
 /* ---------- online setup page ---------- */
 .setup-top {

@@ -16,7 +16,8 @@
     "cancel": "取消",
     "copy": "复制房间码",
     "lang": "English",
-    "credit": "纸云游戏 · 木泠工作室"
+    "creditGame": "纸云游戏",
+    "creditStudio": "木泠工作室"
   },
   "game": {
     "turn": "{player} 的回合",

@@ -44,8 +44,18 @@ export function createMenu(cb: MenuCallbacks): MenuView {
 
   view.append(title, subtitle, actions);
 
-  const credit = el('div', 'menu-credit', t('menu.credit'));
-  credit.dataset.i18n = 'menu.credit';
+  const credit = el('div', 'menu-credit');
+  const gameLink = el('a', 'credit-link', t('menu.creditGame'));
+  gameLink.href = 'https://github.com/Mooling0602/Paper-Cloud-Games';
+  gameLink.target = '_blank';
+  gameLink.rel = 'noopener';
+  gameLink.dataset.i18n = 'menu.creditGame';
+  const studioLink = el('a', 'credit-link', t('menu.creditStudio'));
+  studioLink.href = 'https://github.com/Mooling0602';
+  studioLink.target = '_blank';
+  studioLink.rel = 'noopener';
+  studioLink.dataset.i18n = 'menu.creditStudio';
+  credit.append(gameLink, document.createTextNode(' · '), studioLink);
   view.append(credit);
 
   const menu: MenuView = {

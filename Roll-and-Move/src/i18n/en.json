@@ -16,7 +16,8 @@
     "cancel": "Cancel",
     "copy": "Copy room code",
     "lang": "中文（简体）",
-    "credit": "Paper Cloud Games · Mooling Studio"
+    "creditGame": "Paper Cloud Games",
+    "creditStudio": "Mooling Studio"
   },
   "game": {
     "turn": "{player}'s turn",
