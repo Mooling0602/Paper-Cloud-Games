@@ -1,7 +1,6 @@
 import './style.css';
 import { i18n } from '../../Core/i18n/LanguageManager';
 import { isSmallScreen, getViewport } from '../../Core/device/screen';
-import { enterFullscreen } from '../../Core/device/fullscreen';
 import en from './i18n/en.json';
 import zhCN from './i18n/zh-CN.json';
 import { setupErrorReporting, reportDebug } from './debug';
@@ -60,8 +59,6 @@ async function boot(): Promise<void> {
     current?.destroy();
     const menu = createMenu();
     menu.onStart = () => {
-      // user gesture: enter immersive fullscreen (hides browser chrome)
-      void enterFullscreen();
       showGame();
     };
     app.append(menu.view);
