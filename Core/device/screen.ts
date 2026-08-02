@@ -14,3 +14,18 @@ export function getViewport(): Viewport {
 export function isSmallScreen(vp: Viewport = getViewport()): boolean {
   return vp.width < SMALL_SCREEN_MIN.width || vp.height < SMALL_SCREEN_MIN.height;
 }
+
+/**
+ * Height of the area reserved by the system status bar (CSS px).
+ * On edge-to-edge Android the page extends under the bar but the bar is
+ * opaque; layouts must offset their top content by this amount.
+ */
+export function safeAreaTop(): number {
+  const probe = document.createElement('div');
+  probe.style.cssText =
+    'position:fixed;top:0;left:0;width:1px;height:1px;padding-top:env(safe-area-inset-top);visibility:hidden;pointer-events:none;';
+  document.body.appendChild(probe);
+  const v = probe.offsetHeight - probe.clientHeight;
+  probe.remove();
+  return v || 0;
+}

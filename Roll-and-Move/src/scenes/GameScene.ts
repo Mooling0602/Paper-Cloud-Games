@@ -145,7 +145,7 @@ export class GameScene extends Phaser.Scene {
     });
     this.fsBtn = paperButton(this, {
       x: MARGIN + 45 * DPR,
-      y: 36 * DPR,
+      y: 36 * DPR + inset,
       width: 90 * DPR,
       height: 42 * DPR,
       label: i18n.t('game.fullscreen'),
@@ -154,7 +154,7 @@ export class GameScene extends Phaser.Scene {
     });
     paperButton(this, {
       x: w - 156 * DPR,
-      y: 36 * DPR,
+      y: 36 * DPR + inset,
       width: 40 * DPR,
       height: 36 * DPR,
       label: '−',
@@ -163,7 +163,7 @@ export class GameScene extends Phaser.Scene {
     });
     paperButton(this, {
       x: w - 108 * DPR,
-      y: 36 * DPR,
+      y: 36 * DPR + inset,
       width: 40 * DPR,
       height: 36 * DPR,
       label: '+',
@@ -172,7 +172,7 @@ export class GameScene extends Phaser.Scene {
     });
     this.pctBtn = paperButton(this, {
       x: w - 48 * DPR,
-      y: 36 * DPR,
+      y: 36 * DPR + inset,
       width: 64 * DPR,
       height: 36 * DPR,
       label: '100%',
@@ -248,6 +248,7 @@ export class GameScene extends Phaser.Scene {
       win: `${window.innerWidth}x${window.innerHeight}`,
       vv: vv ? `${Math.round(vv.width)}x${Math.round(vv.height)}@${Math.round(vv.offsetTop)}` : 'n/a',
       game: `${this.scale.gameSize.width}x${this.scale.gameSize.height}`,
+      safeTop: safeAreaTop(),
       cellSize: this.spec.size,
       boardTop: Math.round(this.spec.cy - (5 * this.spec.size + 4 * this.spec.gap) / 2),
       boardBottom: Math.round(this.spec.cy + (5 * this.spec.size + 4 * this.spec.gap) / 2),
