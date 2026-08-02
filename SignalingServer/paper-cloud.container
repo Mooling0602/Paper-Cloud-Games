@@ -5,6 +5,7 @@ Description=Paper Cloud Games relay server
 Image=ghcr.nju.edu.cn/mooling0602/paper-cloud-games:latest
 ContainerName=paper-cloud
 PublishPort=127.0.0.1:8787:8787
+Volume=/home/mooling/paper-cloud/config.json:/app/config.json:ro
 
 [Service]
 Restart=always

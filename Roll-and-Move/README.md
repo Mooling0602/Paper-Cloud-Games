@@ -82,6 +82,8 @@ The game is fully static, and the relay server can also host the built files —
 
    Note: the relay runs over plain WebSocket and works over HTTP too; TLS is still recommended for production.
 
+   Optional — protect the server info/stats pages: create `config.json` next to `server.ts` with `{"authToken": "..."}` (or mount it into the container). In this production mode the pages require the token via the `X-Auth-Token` header; the info page shows a token input when unauthenticated.
+
 4. **Play:** open `https://play.example.com` — the online setup page defaults the server address to the page's own hostname.
 
 > Container deployment is available too — a Dockerfile is included in the repo (`SignalingServer/Dockerfile`), the image serves the built game + the WebSocket relay on one port.

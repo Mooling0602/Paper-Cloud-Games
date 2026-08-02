@@ -33,3 +33,4 @@
 ## 当前测试设备
 
 - 小米平板5 + 安卓16，Chrome 浏览器
+12. **生产模式鉴权（2026-08-02）**：`SignalingServer` 支持配置文件 `config.json`（`CONFIG_FILE` 环境变量可覆盖路径）；`authToken` 非空即生产模式——`/info` 与 `/stats` 需 `X-Auth-Token` 请求头（`timingSafeEqual` 比对），未认证访问 `/info` 返回带令牌输入框的登录壳页（localStorage 记住令牌，`?raw=1` 取正文）；无配置文件 = 开发模式全开放。服务器上配置文件在 `~/paper-cloud/config.json`（权限 600），经 quadlet `Volume=` 只读挂载进容器（`/app/config.json`）；`deploy.sh` 从配置文件提取令牌访问 `/stats`；`config.json` 已加入 .gitignore/.dockerignore，仓库只含 `config.example.json`。

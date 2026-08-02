@@ -48,13 +48,13 @@ echo "$(date +%H:%M) new image: $AFTER"
 down=0
 rooms=""
 for _ in $(seq 1 60); do
-  rooms=$(curl -s --max-time 3 "$STATS" | grep -oE '[0-9]+' || true)
+  rooms=$(curl -s --max-time 3 "${HDR[@]}" "$STATS" | grep -oE '[0-9]+' || true)
   if [ -z "$rooms" ]; then
     down=$((down + 1))
     [ "$down" -ge 2 ] && break # relay unreachable -> already down, redeploy
   elif [ "$rooms" = "0" ]; then
     sleep 5 # second confirm right before swapping
-    rooms=$(curl -s --max-time 3 "$STATS" | grep -oE '[0-9]+' || true)
+    rooms=$(curl -s --max-time 3 "${HDR[@]}" "$STATS" | grep -oE '[0-9]+' || true)
     [ "$rooms" = "0" ] && break
   fi
   sleep 10

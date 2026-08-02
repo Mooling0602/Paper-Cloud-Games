@@ -82,6 +82,8 @@ npm run build      # 输出到 dist/
 
    注意：中继基于普通 WebSocket，HTTP 也能工作；生产环境仍建议启用 TLS。
 
+   可选——保护服务器信息/统计页面：在 `server.ts` 旁创建 `config.json`，内容 `{"authToken": "..."}`（或挂载进容器）。该生产模式下页面需要通过 `X-Auth-Token` 请求头提供令牌；未认证时信息页会显示令牌输入框。
+
 4. **游玩：** 打开 `https://play.example.com` —— 联机设置页会自动默认当前页面自身的主机名为服务器地址。
 
 > 容器部署也已可用——仓库中包含 Dockerfile（`SignalingServer/Dockerfile`），镜像在一个端口上同时提供游戏页面和 WebSocket 中继。
