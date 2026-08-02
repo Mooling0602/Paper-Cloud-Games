@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { i18n } from '../../../Core/i18n/LanguageManager';
 import { ZoomController } from '../../../Core/zoom/ZoomController';
-import { PAPER, FONTS, TEXT_RES } from '../../../Core/style/paper';
+import { PAPER, FONTS } from '../../../Core/style/paper';
 import { makePaperTexture } from '../style/draw';
 import { BoardSpec, drawBoard, drawToken, cellCenter, LAST_CELL, GRID, Board } from '../game/board';
 import { createDice, Dice } from '../game/dice';
@@ -104,10 +104,10 @@ export class GameScene extends Phaser.Scene {
     // bottom zone: dice + decision buttons + hints
     this.dice = createDice(this, w / 2, h - 110, 84, () => void this.onRoll());
     this.hint = this.add
-      .text(w / 2, h - 186, '', { fontFamily: FONTS.family, resolution: TEXT_RES, fontSize: '22px', color: PAPER.inkSoftCss })
+      .text(w / 2, h - 186, '', { fontFamily: FONTS.family, fontSize: '22px', color: PAPER.inkSoftCss })
       .setOrigin(0.5);
     this.resultText = this.add
-      .text(w / 2, h - 52, '', { fontFamily: FONTS.family, resolution: TEXT_RES, fontSize: '26px', color: PAPER.redCss })
+      .text(w / 2, h - 52, '', { fontFamily: FONTS.family, fontSize: '26px', color: PAPER.redCss })
       .setOrigin(0.5);
     this.rerollBtn = paperButton(this, {
       x: w / 2 - 160,
@@ -132,7 +132,7 @@ export class GameScene extends Phaser.Scene {
 
     // top bar: restart (left), turn banner (center), zoom (right)
     this.banner = this.add
-      .text(w / 2, 36, '', { fontFamily: FONTS.family, resolution: TEXT_RES, fontSize: '36px', color: PAPER.inkCss })
+      .text(w / 2, 36, '', { fontFamily: FONTS.family, fontSize: '36px', color: PAPER.inkCss })
       .setOrigin(0.5);
     this.restartBtn = paperButton(this, {
       x: MARGIN + 90 + 8 + 70,
@@ -188,14 +188,14 @@ export class GameScene extends Phaser.Scene {
       tok.setDepth(1);
       const name = this.add
         .text(left ? 56 : w - 56, h - 100, '', {
-          fontFamily: FONTS.family, resolution: TEXT_RES,
+          fontFamily: FONTS.family,
           fontSize: '22px',
           color: PAPER.inkCss,
         })
         .setOrigin(left ? 0 : 1, 0.5);
       const cell = this.add
         .text(left ? 56 : w - 56, h - 72, '', {
-          fontFamily: FONTS.family, resolution: TEXT_RES,
+          fontFamily: FONTS.family,
           fontSize: '17px',
           color: PAPER.inkSoftCss,
         })
@@ -205,7 +205,7 @@ export class GameScene extends Phaser.Scene {
 
     // win overlay (relative to the board)
     this.winText = this.add
-      .text(w / 2, this.spec.cy - 40, '', { fontFamily: FONTS.heading, resolution: TEXT_RES, fontSize: '64px' })
+      .text(w / 2, this.spec.cy - 40, '', { fontFamily: FONTS.heading, fontSize: '64px' })
       .setOrigin(0.5)
       .setVisible(false);
     this.winRestartBtn = paperButton(this, {
@@ -236,7 +236,7 @@ export class GameScene extends Phaser.Scene {
       }
       for (let y = 0; y < h; y += 100) {
         this.add
-          .text(36, y, String(y), { fontFamily: FONTS.family, resolution: TEXT_RES, fontSize: '14px', color: PAPER.redCss })
+          .text(36, y, String(y), { fontFamily: FONTS.family, fontSize: '14px', color: PAPER.redCss })
           .setOrigin(0, 0.5);
       }
     }

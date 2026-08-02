@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { PAPER, TEXT_RES } from '../../../Core/style/paper';
+import { PAPER } from '../../../Core/style/paper';
 import { arrow, jitterLine, seedRng, rand } from '../style/draw';
 
 export const GRID = 5;
@@ -73,7 +73,6 @@ export function drawBoard(scene: Phaser.Scene, spec: BoardSpec, labelCb: (key: s
         fontFamily: 'Patrick Hand',
         fontSize: '15px',
         color: PAPER.inkSoftCss,
-        resolution: TEXT_RES,
       })
       .setOrigin(0.5);
     labelTexts.push(num);
@@ -87,7 +86,6 @@ export function drawBoard(scene: Phaser.Scene, spec: BoardSpec, labelCb: (key: s
           fontFamily: 'Patrick Hand',
           fontSize: '11px',
           color: '#fff6ea',
-          resolution: TEXT_RES,
         })
         .setOrigin(0.5)
         .setData('i18nKey', 'game.start');
@@ -100,7 +98,6 @@ export function drawBoard(scene: Phaser.Scene, spec: BoardSpec, labelCb: (key: s
           fontFamily: 'Patrick Hand',
           fontSize: '11px',
           color: '#fff6ea',
-          resolution: TEXT_RES,
         })
         .setOrigin(0.5)
         .setData('i18nKey', 'game.finish');

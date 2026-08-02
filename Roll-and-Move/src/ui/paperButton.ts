@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { PAPER, FONTS, TEXT_RES } from '../../../Core/style/paper';
+import { PAPER, FONTS } from '../../../Core/style/paper';
 import { jitterRect, seedRng } from '../style/draw';
 
 export interface PaperButton {
@@ -30,7 +30,7 @@ export function paperButton(scene: Phaser.Scene, opts: PaperButtonOpts): PaperBu
   const zone = scene.add.zone(x, y, width, height).setInteractive({ useHandCursor: true });
   // text is created at container-local (0,0); the container is already at (x, y)
   const text = scene.add
-    .text(0, 0, label, { fontFamily: FONTS.family, fontSize, color: textColor, resolution: TEXT_RES })
+    .text(0, 0, label, { fontFamily: FONTS.family, fontSize, color: textColor })
     .setOrigin(0.5);
   const container = scene.add.container(x, y, [g, text]);
   container.setSize(width, height);

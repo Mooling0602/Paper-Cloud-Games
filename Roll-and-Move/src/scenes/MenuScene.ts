@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { i18n } from '../../../Core/i18n/LanguageManager';
-import { PAPER, FONTS, TEXT_RES } from '../../../Core/style/paper';
+import { PAPER, FONTS } from '../../../Core/style/paper';
 import { makePaperTexture, seedRng, jitterRect } from '../style/draw';
 import { paperButton } from '../ui/paperButton';
 import { enterFullscreen } from '../../../Core/device/fullscreen';
@@ -29,7 +29,6 @@ export class MenuScene extends Phaser.Scene {
         fontFamily: FONTS.heading,
         fontSize: '76px',
         color: PAPER.inkCss,
-        resolution: TEXT_RES,
       })
       .setOrigin(0.5)
       .setAngle(-2);
@@ -40,7 +39,6 @@ export class MenuScene extends Phaser.Scene {
         fontFamily: FONTS.family,
         fontSize: '30px',
         color: PAPER.inkSoftCss,
-        resolution: TEXT_RES,
       })
       .setOrigin(0.5);
 
@@ -75,7 +73,6 @@ export class MenuScene extends Phaser.Scene {
         fontFamily: FONTS.family,
         fontSize: '17px',
         color: PAPER.inkSoftCss,
-        resolution: TEXT_RES,
       })
       .setOrigin(0.5);
 
