@@ -128,10 +128,23 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
     hiddenInput.blur();
   }
 
-  hiddenInput.addEventListener('input', () => {
+  // never rewrite the value while an IME composition is active — it corrupts
+  // the input (digits get scrambled/reordered on some keyboards)
+  let composing = false;
+  const syncCode = (): void => {
     hiddenInput.value = hiddenInput.value.replace(/\D/g, '').slice(0, 4);
     codeDigits.textContent = hiddenInput.value;
     codeError.hidden = true;
+  };
+  hiddenInput.addEventListener('compositionstart', () => {
+    composing = true;
+  });
+  hiddenInput.addEventListener('compositionend', () => {
+    composing = false;
+    syncCode();
+  });
+  hiddenInput.addEventListener('input', () => {
+    if (!composing) syncCode();
   });
   hiddenInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') submitCode();
