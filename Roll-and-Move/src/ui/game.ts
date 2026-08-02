@@ -76,7 +76,7 @@ export function createGame(onRestart: () => void): GameView {
   });
   // constant pixel size derived from the board (independent of cell/state)
   const applyTokenSize = (): void => {
-    const px = Math.round(board.clientWidth * 0.095);
+    const px = Math.round(board.clientWidth * 0.085);
     tokens.forEach((tk) => {
       tk.style.width = `${px}px`;
       tk.style.height = `${px}px`;
