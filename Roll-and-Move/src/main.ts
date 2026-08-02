@@ -12,10 +12,16 @@ i18n.register({ code: 'en', dict: en });
 i18n.register({ code: 'zh-CN', dict: zhCN });
 i18n.setLang(i18n.detect());
 
-if (isSmallScreen()) {
+const vv = window.visualViewport;
+/** visual viewport when available (mobile URL bars), window size otherwise */
+function currentViewport(): { width: number; height: number } {
+  return vv ? { width: vv.width, height: vv.height } : { width: window.innerWidth, height: window.innerHeight };
+}
+
+if (isSmallScreen(currentViewport())) {
   showBlockedPage();
 } else {
-  new Phaser.Game({
+  const game = new Phaser.Game({
     type: Phaser.AUTO,
     parent: 'app',
     width: 1280,
@@ -27,6 +33,25 @@ if (isSmallScreen()) {
     },
     scene: [LoadingScene, MenuScene, GameScene],
   });
+
+  // Keep the canvas exactly on the visible area: on Android/iOS the URL bar
+  // overlays the layout viewport, so window.innerHeight is too tall and the
+  // top of the game would be hidden. visualViewport tracks the real visible
+  // region (bar expanded/collapsed, browser zoom, etc.).
+  const app = document.getElementById('app');
+  if (vv && app) {
+    const syncViewport = (): void => {
+      app.style.position = 'fixed';
+      app.style.top = `${vv.offsetTop}px`;
+      app.style.left = `${vv.offsetLeft}px`;
+      app.style.width = `${vv.width}px`;
+      app.style.height = `${vv.height}px`;
+      game.scale.resize(vv.width, vv.height);
+    };
+    vv.addEventListener('resize', syncViewport);
+    vv.addEventListener('scroll', syncViewport);
+    syncViewport();
+  }
 }
 
 /** Friendly full block page for small screens (phones etc.). */
