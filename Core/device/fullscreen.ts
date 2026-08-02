@@ -6,7 +6,7 @@ export function isFullscreen(): boolean {
 
 export function enterFullscreen(): Promise<void> {
   const el = document.documentElement;
-  if (el.requestFullscreen) return el.requestFullscreen();
+  if (el.requestFullscreen) return el.requestFullscreen({ navigationUI: 'hide' });
   return Promise.resolve();
 }
 
