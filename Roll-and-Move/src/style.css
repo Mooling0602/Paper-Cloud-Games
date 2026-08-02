@@ -268,12 +268,10 @@ body {
 .token.p0 {
   background: #eccaca;
   border-color: #c94f4f;
-  margin: -2.5% 0 0 -2.5%;
 }
 .token.p1 {
   background: #cad4ec;
   border-color: #4f7ac9;
-  margin: 2.5% 0 0 2.5%;
 }
 .token.current {
   z-index: 4;

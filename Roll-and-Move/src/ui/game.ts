@@ -71,10 +71,17 @@ export function createGame(onRestart: () => void): GameView {
     board.append(tk);
     return tk;
   });
-  const setTokenPos = (pi: number, cell: number): void => {
+  const setTokenPos = (pi: number, cell: number, fx = 0.5, fy = 0.5): void => {
     const { row, col } = cellPos(cell);
-    tokens[pi].style.left = `${((col + 0.5) * 100) / GRID}%`;
-    tokens[pi].style.top = `${((row + 0.5) * 100) / GRID}%`;
+    tokens[pi].style.left = `${((col + fx) * 100) / GRID}%`;
+    tokens[pi].style.top = `${((row + fy) * 100) / GRID}%`;
+  };
+  // single token → cell center; both on the same cell → diagonal (red NW, blue SE)
+  const updateTokens = (): void => {
+    const [a, b] = turn.players;
+    const same = a.pos === b.pos;
+    setTokenPos(0, a.pos, same ? 0.25 : 0.5, same ? 0.25 : 0.5);
+    setTokenPos(1, b.pos, same ? 0.75 : 0.5, same ? 0.75 : 0.5);
   };
 
   const boardArea = el('main', 'board-area');
@@ -156,7 +163,9 @@ export function createGame(onRestart: () => void): GameView {
       panel.name.textContent = t(pl.nameKey);
       panel.info.textContent = pl.pos >= LAST_CELL ? t('game.finish') : t('game.cell', { n: pl.pos + 1 });
     });
-  };
+  // refresh tokens after every state change (also applies diagonal placement)
+  updateTokens();
+};
 
   const roll = (): void => {
     if (!turn.canRoll() || rolling) return;
@@ -227,9 +236,8 @@ export function createGame(onRestart: () => void): GameView {
   });
 
   // start
-  setTokenPos(0, 0);
-  setTokenPos(1, 0);
   turn.beginTurn();
+  updateTokens();
   refresh();
 
   return {
