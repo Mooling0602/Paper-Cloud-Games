@@ -257,8 +257,6 @@ body {
 /* tokens */
 .token {
   position: absolute;
-  width: 52%;
-  height: 52%;
   border-radius: 50%;
   border: 2.5px solid;
   box-shadow: 2px 2px 0 rgba(59, 55, 46, 0.25);
@@ -276,7 +274,7 @@ body {
 }
 .token.current {
   z-index: 4;
-  box-shadow: 0 0 0 4px rgba(217, 182, 74, 0.55), 2px 2px 0 rgba(59, 55, 46, 0.25);
+  box-shadow: 0 0 0 2px rgba(217, 182, 74, 0.6), 2px 2px 0 rgba(59, 55, 46, 0.25);
 }
 
 /* ---------- bottom bar ---------- */

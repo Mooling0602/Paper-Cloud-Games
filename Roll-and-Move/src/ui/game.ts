@@ -252,6 +252,7 @@ export function createGame(onRestart: () => void): GameView {
     destroy: () => {
       unsubZoom();
       unsubI18n();
+      window.removeEventListener('resize', applyTokenSize);
       document.removeEventListener('fullscreenchange', refreshFsLabel);
       window.removeEventListener('keydown', onSpace);
       view.remove();
