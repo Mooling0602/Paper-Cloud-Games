@@ -326,8 +326,6 @@ body {
 }
 /* ---------- dice ---------- */
 .dice {
-  width: clamp(50px, 8.5vmin, 64px);
-  aspect-ratio: 1;
   background: #f6f1e5;
   border: 2.5px solid #3b372e;
   border-radius: 14px;

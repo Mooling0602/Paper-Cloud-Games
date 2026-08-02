@@ -116,13 +116,15 @@ export function createGame(onRestart: () => void): GameView {
   };
   setFace(1);
 
-  // deterministic pip diameter in px, derived from the dice size
-  const applyPipSize = (): void => {
-    const px = Math.max(6, Math.round(dice.clientWidth * 0.17));
-    dice.style.setProperty('--pip', `${px}px`);
+  // deterministic square size in px (aspect-ratio proved unreliable after animations)
+  const applyDiceSize = (): void => {
+    const vmin = Math.min(window.innerWidth, window.innerHeight);
+    const w = Math.round(Math.min(64, Math.max(50, vmin * 0.085)));
+    dice.style.width = `${w}px`;
+    dice.style.height = `${w}px`;
   };
-  const pipSizeObserver = new ResizeObserver(() => applyPipSize());
-  pipSizeObserver.observe(dice);
+  applyDiceSize();
+  window.addEventListener('resize', applyDiceSize);
 
   // roll button (left of dice) + confirm button (right of dice), top center
   const rollBtn = paperButton('', () => roll());
@@ -210,6 +212,7 @@ export function createGame(onRestart: () => void): GameView {
     if (!rolling) return;
     rolling = false;
     dice.classList.remove('rolling');
+    dice.style.transform = '';
     const n = 1 + Math.floor(Math.random() * 6);
     setFace(n);
     turn.onRolled(n);
@@ -276,7 +279,7 @@ export function createGame(onRestart: () => void): GameView {
       unsubZoom();
       unsubI18n();
       tokenSizeObserver.disconnect();
-      pipSizeObserver.disconnect();
+      window.removeEventListener('resize', applyDiceSize);
       document.removeEventListener('fullscreenchange', refreshFsLabel);
       window.removeEventListener('keydown', onSpace);
       view.remove();
