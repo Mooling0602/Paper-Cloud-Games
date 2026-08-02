@@ -173,7 +173,9 @@ export function createGame(
   window.addEventListener('resize', applyDiceSize);
 
   // roll button (left of dice) + confirm button (right of dice), top center
-  const rollBtn = paperButton('', () => roll());
+  const rollBtn = paperButton('', () => {
+    if (isLocalTurn()) roll();
+  });
   const confirmBtn = paperButton('', () => {
     if (turn.state !== 'deciding') return;
     if (net && !net.isHost) {
@@ -230,7 +232,7 @@ export function createGame(
     const idle = turn.state === 'idle';
     const deciding = turn.state === 'deciding';
     // online: only the player whose turn it is may operate
-    const localTurn = !net || (net.isHost ? turn.current === 0 : turn.current === 1);
+    const localTurn = isLocalTurn();
     rollBtn.hidden = !(localTurn && (idle || deciding));
     confirmBtn.hidden = !(localTurn && deciding);
     rollBtn.textContent = idle ? t('game.rollBtn') : deciding ? t('game.reroll', { n: turn.rollsLeft }) : '';
@@ -256,6 +258,10 @@ export function createGame(
   updateTokens();
 };
 
+  // online: only the player whose turn it is may act locally
+  const isLocalTurn = (): boolean =>
+    !net || (net.isHost ? turn.current === 0 : turn.current === 1);
+
   const roll = (): void => {
     if (rolling) return;
     if (net && !net.isHost) {
@@ -263,7 +269,6 @@ export function createGame(
       net.send({ t: 'roll' });
       return;
     }
-    if (net?.isHost && turn.current !== 0) return; // host may only act on its own turn
     if (!turn.canRoll()) {
       // reroll path: only valid while deciding
       if (turn.state !== 'deciding') return;
@@ -276,7 +281,9 @@ export function createGame(
     dice.classList.add('rolling');
   };
 
-  dice.addEventListener('click', roll);
+  dice.addEventListener('click', () => {
+    if (isLocalTurn()) roll();
+  });
 
   dice.addEventListener('animationend', () => {
     if (!rolling) return;
@@ -322,6 +329,7 @@ export function createGame(
   const onSpace = (e: KeyboardEvent): void => {
     if (e.code !== 'Space') return;
     e.preventDefault();
+    if (!isLocalTurn()) return;
     if (turn.canRoll()) roll();
     else if (turn.state === 'deciding') {
       if (net && !net.isHost) {
