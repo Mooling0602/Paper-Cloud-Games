@@ -222,6 +222,25 @@ export class GameScene extends Phaser.Scene {
     this.applyZoom();
     if (this.turn.state === 'finished') this.showWin();
 
+    // ?debug=1: on-screen ruler so the tester can read real pixel positions
+    if (new URLSearchParams(location.search).has('debug')) {
+      const g = this.add.graphics();
+      g.lineStyle(2, PAPER.red, 0.9);
+      g.lineBetween(0, 0.5, w, 0.5); // canvas top edge
+      g.lineStyle(2, PAPER.blue, 0.9);
+      g.lineBetween(0, 15.5, w, 15.5); // top bar buttons top edge
+      for (let y = 0; y < h; y += 20) {
+        const len = y % 100 === 0 ? 26 : y % 40 === 0 ? 16 : 8;
+        g.lineStyle(1, PAPER.red, 0.6);
+        g.lineBetween(2, y, 2 + len, y);
+      }
+      for (let y = 0; y < h; y += 100) {
+        this.add
+          .text(36, y, String(y), { fontFamily: FONTS.family, fontSize: '14px', color: PAPER.redCss })
+          .setOrigin(0, 0.5);
+      }
+    }
+
     // report layout numbers to the dev log (readable by the developer)
     const vv = window.visualViewport;
     const canvasRect = this.game.canvas.getBoundingClientRect();
