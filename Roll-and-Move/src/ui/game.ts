@@ -56,6 +56,10 @@ export function createGame(onRestart: () => void): GameView {
   for (let i = 0; i < GRID * GRID; i++) {
     const { row, col } = cellPos(i);
     const cell = el('div', 'cell');
+    // explicit snake placement: grid auto-placement would lay cells out in
+    // plain raster order, breaking the boustrophedon path
+    cell.style.gridRow = String(row + 1);
+    cell.style.gridColumn = String(col + 1);
     cell.append(el('span', 'num', String(i + 1)));
     if (i === 0) cell.append(el('span', 'badge start', t('game.start')));
     if (i === LAST_CELL) cell.append(el('span', 'badge finish', t('game.finish')));
