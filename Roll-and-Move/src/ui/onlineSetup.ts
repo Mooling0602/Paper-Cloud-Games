@@ -67,8 +67,10 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
     cb.onJoinRoom(serverValue(), codeInput.value.trim());
   }, 'menu-start');
   joinBtn.dataset.i18n = 'menu.join';
+  const codeRow = el('div', 'row');
+  codeRow.append(codeInput);
   const joinRow = el('div', 'row');
-  joinRow.append(codeInput, joinBtn);
+  joinRow.append(joinBtn);
 
   const lobby = el('div', 'lobby hidden');
   const lobbyText = el('div', 'lobby-text');
@@ -76,7 +78,7 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
   cancelBtn.dataset.i18n = 'menu.cancel';
   lobby.append(lobbyText, cancelBtn);
 
-  online.append(serverRow, createRow, joinRow, lobby);
+  online.append(serverRow, createRow, codeRow, joinRow, lobby);
   view.append(topBar, title, online);
 
   function serverValue(): string {
