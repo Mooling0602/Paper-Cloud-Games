@@ -61,7 +61,7 @@ This file documents the coding standards and AI collaboration guidelines for the
 - **No game engine**: UI controls and game elements are written with web-native technology (DOM/CSS/TypeScript); canvas is only used when a specific game genuinely needs it
 - Reusable logic shared across games lives in `Core/` at the repository root (device detection, i18n manager, zoom controller, paper style theme)
 - Games are standalone Vite projects in their `<Game-Name>/` directory; monorepo workspace tooling (e.g. pnpm workspaces) is deferred until a second game or a shared package appears
-- Online multiplayer signaling: `SignalingServer/` at the repository root (Node.js + ws, dual-stack IPv6/IPv4); game data flows over the peers' own WebRTC DataChannel (IPv6 P2P, host-authoritative)
+- Online multiplayer relay: `SignalingServer/` at the repository root (Node.js + ws, dual-stack): hosts the game build (static files) and relays messages between a room's host and guest
 
 ## Design Guidelines
 
@@ -69,7 +69,7 @@ This file documents the coding standards and AI collaboration guidelines for the
   - Touch-friendly, supporting multi-touch
   - Same-screen multiplayer (multiple players on one device)
   - LAN or remote online multiplayer
-- **Online multiplayer**: host-authoritative — the host runs the server side as the host machine, so the server logic is embedded in the webpage; no separate server deployment
+- **Online multiplayer**: host-authoritative — the host's browser runs the authoritative game logic, but all data flows through the relay server (`SignalingServer/`); no WebRTC/P2P
 - **Primary target**: tablets (convenient for same-screen multiplayer); local keyboard/mouse and gamepad support are also required
 - **Adaptation priority**: multi-touch > keyboard/mouse > gamepad (gamepad must support multiple devices for split-play)
 - **Small screens (phones, etc.)**: lowest priority; the entry block (friendly message + full denial) is **temporarily removed for testing** — restore it when testing is done

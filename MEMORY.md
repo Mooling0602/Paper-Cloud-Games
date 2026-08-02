@@ -25,7 +25,7 @@
 5. **游戏列表与技术栈不写入 README**：项目处于创建阶段，这些信息尚不明确，README 不写。
 6. **monorepo 包管理工具（如 pnpm workspace）与共享包结构**：待出现第二个游戏或共享包时再定（需用户确认）。
 7. **小屏完全拦截（手机等）**：测试期间**暂时移除**，测试完成后恢复（根 AGENTS.md 已同步标注；`Core/device/screen.ts` 的 `isSmallScreen` 保留备用）。
-8. **WebRTC 安全上下文**：自签名 HTTPS 无效（绕过证书 ≠ 安全上下文，`RTCPeerConnection` 仍不可用）；LAN 测试用 Chrome 标志 `#unsafely-treat-insecure-origin-as-secure` 标记开发源。
+8. **联机架构变更（2026-08-02）**：废弃 WebRTC P2P（安全上下文/flag/NAT 门槛过高），改为**服务器中继**（`SignalingServer/` 托管游戏 + 全量消息转发，主机权威保留）；WebSocket 无需安全上下文，Chrome flag/自签名证书方案全部废弃。云部署（Podman + Nginx）待本地中继验证通过后进行。
 
 ## 当前测试设备
 

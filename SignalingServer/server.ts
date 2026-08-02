@@ -1,24 +1,66 @@
 /**
- * Paper Cloud Games — WebRTC signaling server.
+ * Paper Cloud Games — relay server.
  *
- * Rooms pair a host and a guest; the server relays SDP/ICE 'signal' messages
- * between them. All game data flows over the peers' own WebRTC DataChannel
- * (IPv6 P2P), never through this server.
+ * Hosts the game (static files) and relays ALL messages between a room's
+ * host and guest over WebSocket. The host still runs the authoritative game
+ * logic; this server only forwards data (no WebRTC involved).
  *
- * Run: node server.ts   (PORT env to override, default 8787)
- * Info page: http://<addr>:8787/  — shows the server's network addresses.
+ * Env:
+ *   PORT        listen port (default 8787)
+ *   PUBLIC_DIR  directory of static files to serve (e.g. the game build);
+ *               omit for relay-only mode (local dev)
+ *
+ * Info page: http://<addr>:8787/
  */
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
+import { readFile } from 'node:fs/promises';
+import { join, normalize, extname } from 'node:path';
 import { networkInterfaces } from 'node:os';
 import { WebSocketServer, type WebSocket } from 'ws';
 
 const PORT = Number(process.env.PORT ?? 8787);
+const PUBLIC_DIR = process.env.PUBLIC_DIR;
 
-const server = createServer((req: IncomingMessage, res: ServerResponse) => {
-  if (req.url === '/' || req.url === '/info') {
+const MIME: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.json': 'application/json',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.ico': 'image/x-icon',
+  '.woff2': 'font/woff2',
+  '.map': 'application/json',
+};
+
+const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
+  const url = (req.url ?? '/').split('?')[0];
+  if (url === '/' || url === '/info') {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
     res.end(infoPage());
     return;
+  }
+  if (PUBLIC_DIR) {
+    // serve the static game build (path traversal guarded)
+    const rel = normalize(url).replace(/^(\.\.[/\\])+/, '');
+    let file = join(PUBLIC_DIR, rel === '/' ? 'index.html' : rel);
+    try {
+      let data = await readFile(file);
+      let type = MIME[extname(file)] ?? 'application/octet-stream';
+      if (!MIME[extname(file)] && !extname(file)) {
+        // extension-less path: try index.html (SPA fallback)
+        file = join(file, 'index.html');
+        data = await readFile(file);
+        type = MIME['.html'];
+      }
+      res.writeHead(200, { 'content-type': type });
+      res.end(data);
+      return;
+    } catch {
+      // fall through to 404
+    }
   }
   res.writeHead(404, { 'content-type': 'text/plain' });
   res.end('not found');
@@ -71,11 +113,12 @@ wss.on('connection', (ws) => {
       room.guest = ws;
       send(ws, { t: 'joined' });
       send(room.host, { t: 'peer-ready' });
-    } else if (msg.t === 'signal' && roomCode) {
+    } else if (roomCode) {
+      // relay every other message (game data, state, actions) to the peer
       const room = rooms.get(roomCode);
       if (!room) return;
       const peer = role === 'host' ? room.guest : room.host;
-      if (peer) send(peer, { t: 'signal', data: msg.data });
+      if (peer) send(peer, msg);
     }
   });
 
@@ -105,9 +148,9 @@ function infoPage(): string {
     ? addrs.map((a) => `<li><code>${a}</code></li>`).join('\n')
     : '<li>(no non-internal addresses detected)</li>';
   return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Paper Cloud — Signaling Server</title></head>
+<html lang="en"><head><meta charset="utf-8"><title>Paper Cloud — Relay Server</title></head>
 <body style="font-family:monospace;background:#f6f1e5;color:#3b372e;padding:24px;line-height:1.8">
-<h2>Paper Cloud Games — Signaling Server</h2>
+<h2>Paper Cloud Games — Relay Server</h2>
 <p>Server port: <b>${PORT}</b></p>
 <p>Server addresses (send the IPv6 one to your friend):</p>
 <ul>${list}</ul>
@@ -116,5 +159,5 @@ function infoPage(): string {
 }
 
 server.listen(PORT, '::', () => {
-  console.log(`[signaling] listening on :::${PORT} (IPv6+IPv4)`);
+  console.log(`[relay] listening on :::${PORT} (IPv6+IPv4)${PUBLIC_DIR ? `, serving ${PUBLIC_DIR}` : ''}`);
 });

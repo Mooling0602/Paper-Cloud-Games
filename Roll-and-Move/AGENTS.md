@@ -29,10 +29,9 @@ Roll-and-Move is a 2-player same-screen board game. Players take turns rolling a
 
 ### Scope
 
-- Same-screen local mode and online mode (IPv6 P2P, host-authoritative; host = red, guest = blue)
-- Online signaling runs through `SignalingServer/` (Node, dual-stack); game data flows over WebRTC DataChannel
+- Same-screen local mode and online mode (host-authoritative relay; host = red, guest = blue)
+- Online play runs through the relay server `SignalingServer/` (Node, dual-stack): it hosts the game build and forwards every message between host and guest; no WebRTC
 - No auto-reconnect; on disconnect the host auto-saves (localStorage) and the game is resumed manually from the menu
-- WebRTC requires a secure context; for LAN testing each device enables the Chrome flag `#unsafely-treat-insecure-origin-as-secure` with the dev origin (e.g. `http://192.168.2.64:5173`) — self-signed HTTPS does NOT work (a bypassed certificate is not a secure context)
 - Input priority per root guidelines: multi-touch > keyboard/mouse > gamepad (gamepad later)
 - Small screens: completely block entry with a friendly message
 - Zoom: browser zoom + built-in in-game zoom system (per root guidelines)
