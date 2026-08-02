@@ -237,12 +237,12 @@ const KEY = 'relay-token';
 async function load() {
   const t = localStorage.getItem(KEY) || '';
   if (!t) return;
-  const r = await fetch('/info?raw=1', { headers: { 'X-Auth-Token': t } });
+  const r = await fetch(location.pathname + '?raw=1', { headers: { 'X-Auth-Token': t } });
   if (r.ok) show(await r.text());
 }
 async function submitToken() {
   const t = document.getElementById('token').value.trim();
-  const r = await fetch('/info?raw=1', { headers: { 'X-Auth-Token': t } });
+  const r = await fetch(location.pathname + '?raw=1', { headers: { 'X-Auth-Token': t } });
   if (!r.ok) { document.getElementById('err').textContent = 'invalid token'; return; }
   try { localStorage.setItem(KEY, t); } catch {}
   show(await r.text());
