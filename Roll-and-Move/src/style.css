@@ -257,8 +257,8 @@ body {
 /* tokens */
 .token {
   position: absolute;
-  width: 11%;
-  height: 11%;
+  width: 9.5%;
+  height: 9.5%;
   border-radius: 50%;
   border: 2.5px solid;
   box-shadow: 2px 2px 0 rgba(59, 55, 46, 0.25);
@@ -268,12 +268,12 @@ body {
 .token.p0 {
   background: #eccaca;
   border-color: #c94f4f;
-  margin: -3% 0 0 -3%;
+  margin: -2.5% 0 0 -2.5%;
 }
 .token.p1 {
   background: #cad4ec;
   border-color: #4f7ac9;
-  margin: 3% 0 0 3%;
+  margin: 2.5% 0 0 2.5%;
 }
 .token.current {
   z-index: 4;
