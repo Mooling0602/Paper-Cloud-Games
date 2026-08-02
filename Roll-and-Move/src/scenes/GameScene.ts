@@ -228,10 +228,11 @@ export class GameScene extends Phaser.Scene {
     // ?debug=1: on-screen ruler so the tester can read real pixel positions
     if (new URLSearchParams(location.search).has('debug')) {
       const g = this.add.graphics();
-      g.lineStyle(2, PAPER.red, 0.9);
-      g.lineBetween(0, 0.5, w, 0.5); // canvas top edge
-      g.lineStyle(2, PAPER.blue, 0.9);
-      g.lineBetween(0, 15.5, w, 15.5); // top bar buttons top edge
+      // magenta: canvas top edge (y=0); cyan: top bar buttons top edge
+      g.lineStyle(4 * DPR, 0xff00ff, 1);
+      g.lineBetween(0, 1 * DPR, w, 1 * DPR);
+      g.lineStyle(4 * DPR, 0x00ffff, 1);
+      g.lineBetween(0, 9 * DPR, w, 9 * DPR);
       for (let y = 0; y < h; y += 20 * DPR) {
         const len = (y % (100 * DPR) === 0 ? 26 : y % (40 * DPR) === 0 ? 16 : 8) * DPR;
         g.lineStyle(1, PAPER.red, 0.6);
