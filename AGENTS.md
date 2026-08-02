@@ -35,7 +35,7 @@ This file documents the coding standards and AI collaboration guidelines for the
   - `ci`: CI configuration changes
   - `chore`: miscellaneous changes (not covered by the above)
   - `revert`: revert a commit
-- `scope` is optional, e.g. `docs`, `games/xxx`
+- `scope` is optional, e.g. `docs`, `Roll-and-Move`
 - Breaking changes: add `!` after `type` (e.g. `feat!:`), and describe the `BREAKING CHANGE` in the body or footer
 
 **Versioning follows Semantic Versioning (SemVer)**
@@ -51,6 +51,13 @@ This file documents the coding standards and AI collaboration guidelines for the
 
 - Game subprojects live directly at the repository root as `<Game-Name>/` directories (e.g. `Roll-and-Move/`), named in English, **case-sensitive** (case preserved exactly as decided); no `games/` parent directory.
 - Each game subproject must maintain its own `AGENTS.md` in its directory (to be added when creating the game project).
+
+## Technology Stack
+
+- Language: **TypeScript**
+- Build tooling: **Vite**
+- Game framework: **Phaser 4** (latest stable release)
+- Games are standalone Vite projects in their `<Game-Name>/` directory; monorepo workspace tooling (e.g. pnpm workspaces) is deferred until a second game or a shared package appears
 
 ## Design Guidelines
 
