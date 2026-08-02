@@ -14,6 +14,7 @@
     "onlinePlay": "联机游玩",
     "code": "房间码",
     "cancel": "取消",
+    "copy": "复制房间码",
     "lang": "English",
     "credit": "纸云游戏 · 木泠工作室"
   },
@@ -36,6 +37,8 @@
     "onlineError": "连接失败：{msg}",
     "onlineRoomError": "房间不存在或已满",
     "onlineCodeEmpty": "请输入房间码",
+    "onlineCopied": "房间码已复制",
+    "onlineCopyFail": "复制失败——请手动记下房间码",
     "fullscreen": "全屏",
     "exitFullscreen": "退出全屏",
     "cell": "第 {n} 格",

@@ -192,6 +192,19 @@ body {
 .lobby.hidden {
   display: none;
 }
+.lobby-code {
+  font-family: 'Patrick Hand', 'LXGW WenKai', cursive;
+  font-size: 72px;
+  color: #c94f4f;
+  letter-spacing: 0.12em;
+}
+.lobby-text {
+  color: #8a8374;
+  font-size: 18px;
+  max-width: 420px;
+  text-align: center;
+  line-height: 1.7;
+}
 
 /* ---------- game layout ---------- */
 .game-shell {

@@ -14,6 +14,7 @@
     "onlinePlay": "Online Play",
     "code": "Room code",
     "cancel": "Cancel",
+    "copy": "Copy room code",
     "lang": "中文（简体）",
     "credit": "Paper Cloud Games · Mooling Studio"
   },
@@ -36,6 +37,8 @@
     "onlineError": "Connection failed: {msg}",
     "onlineRoomError": "Room not found or full",
     "onlineCodeEmpty": "Enter a room code",
+    "onlineCopied": "Room code copied",
+    "onlineCopyFail": "Copy failed — please note the code down",
     "fullscreen": "Fullscreen",
     "exitFullscreen": "Exit Fullscreen",
     "cell": "Cell {n}",

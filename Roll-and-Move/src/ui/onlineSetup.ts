@@ -79,17 +79,21 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
   const joinRow = el('div', 'row');
   joinRow.append(joinBtn);
 
-  const lobby = el('div', 'lobby hidden');
+  // big full-screen lobby overlay — impossible to miss
+  const lobby = el('div', 'overlay hidden');
+  const lobbyCode = el('div', 'lobby-code', '—');
   const lobbyText = el('div', 'lobby-text');
+  const copyBtn = paperButton(t('menu.copy'), () => copyCode());
+  copyBtn.dataset.i18n = 'menu.copy';
   const cancelBtn = paperButton(t('menu.cancel'), () => {
     lobby.classList.add('hidden');
     cb.onCancelLobby();
-  }, 'small');
+  });
   cancelBtn.dataset.i18n = 'menu.cancel';
-  lobby.append(lobbyText, cancelBtn);
+  lobby.append(lobbyCode, lobbyText, copyBtn, cancelBtn);
 
-  online.append(serverRow, createRow, codeRow, joinRow, lobby);
-  view.append(topBar, title, online);
+  online.append(serverRow, createRow, codeRow, joinRow);
+  view.append(topBar, title, online, lobby);
 
   function serverValue(): string {
     const v = serverInput.value.trim();
@@ -103,9 +107,22 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
 
   function showLobbyStatus(code: string | null): void {
     lobby.classList.remove('hidden');
-    lobbyText.textContent =
-      code !== null ? t('game.onlineWaiting', { code }) : t('game.onlineConnecting');
+    lobbyCode.textContent = code ?? '—';
+    copyBtn.hidden = code === null;
+    lobbyText.textContent = code !== null ? t('game.onlineWaiting', { code }) : t('game.onlineConnecting');
     reportDebug('ui', { ev: 'lobby', code });
+  }
+
+  function copyCode(): void {
+    const code = lobbyCode.textContent ?? '';
+    void navigator.clipboard
+      .writeText(code)
+      .then(() => {
+        lobbyText.textContent = t('game.onlineCopied');
+      })
+      .catch(() => {
+        lobbyText.textContent = t('game.onlineCopyFail');
+      });
   }
 
   const setup: OnlineSetupView = {
