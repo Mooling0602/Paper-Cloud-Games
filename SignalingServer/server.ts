@@ -8,21 +8,30 @@
  * Run: node server.ts   (PORT env to override, default 8787)
  * Info page: http://<addr>:8787/  — shows the server's network addresses.
  */
-import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
+import { createServer } from 'node:https';
+import { readFileSync } from 'node:fs';
 import { networkInterfaces } from 'node:os';
 import { WebSocketServer, type WebSocket } from 'ws';
 
 const PORT = Number(process.env.PORT ?? 8787);
 
-const server = createServer((req: IncomingMessage, res: ServerResponse) => {
-  if (req.url === '/' || req.url === '/info') {
-    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    res.end(infoPage());
-    return;
-  }
-  res.writeHead(404, { 'content-type': 'text/plain' });
-  res.end('not found');
-});
+// self-signed dev cert so the signaling endpoint can be wss:// (WebRTC needs
+// a secure context on the page side, and https pages block plain ws://)
+const server = createServer(
+  {
+    key: readFileSync(new URL('../certs/key.pem', import.meta.url)),
+    cert: readFileSync(new URL('../certs/cert.pem', import.meta.url)),
+  },
+  (req: IncomingMessage, res: ServerResponse) => {
+    if (req.url === '/' || req.url === '/info') {
+      res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+      res.end(infoPage());
+      return;
+    }
+    res.writeHead(404, { 'content-type': 'text/plain' });
+    res.end('not found');
+  },
+);
 
 const wss = new WebSocketServer({ server, path: '/ws' });
 

@@ -118,7 +118,8 @@ async function boot(): Promise<void> {
   const startLobby = (initial: SavedGame | undefined, role: NetRole, code?: string, server?: string) => {
     teardownNet();
     const addr = server ?? 'localhost:8787';
-    const url = `ws://${addr}/ws`;
+    const scheme = location.protocol === 'https:' ? 'wss' : 'ws';
+    const url = `${scheme}://${addr}/ws`;
     let msgCb: ((m: unknown) => void) | null = null;
     let discCb: (() => void) | null = null;
     const link: NetLink = {
