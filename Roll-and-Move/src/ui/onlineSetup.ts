@@ -133,11 +133,26 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
     hiddenInput.blur();
   }
 
+  // keep the input's own value in sync with our code so maxLength never blocks
+  // new characters after deletions (the browser rejects input when the field
+  // is full). Skip while an IME composition is active.
+  let composing = false;
+  const syncInput = (): void => {
+    if (composing) return;
+    hiddenInput.value = code;
+  };
+  hiddenInput.addEventListener('compositionstart', () => {
+    composing = true;
+  });
+  hiddenInput.addEventListener('compositionend', () => {
+    composing = false;
+    syncInput();
+  });
+
   hiddenInput.addEventListener('input', (e) => {
     const ev = e as InputEvent;
-    const target = e.target as HTMLInputElement;
     if (ev.inputType === 'deleteContentBackward' || ev.inputType === 'deleteContentForward') {
-      code = target.value === '' ? '' : code.slice(0, -1);
+      code = code.slice(0, -1);
     } else if (ev.data) {
       for (const ch of ev.data) {
         if (/[0-9]/.test(ch) && code.length < 4) code += ch;
@@ -145,11 +160,16 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
     }
     codeDigits.textContent = code;
     codeError.hidden = true;
+    syncInput();
   });
   hiddenInput.addEventListener('keydown', (e) => {
     if (e.key === 'Backspace') {
+      // handle deletion ourselves; preventDefault avoids the double-delete
+      // (keydown slice + browser delete + input event slice)
+      e.preventDefault();
       code = code.slice(0, -1);
       codeDigits.textContent = code;
+      syncInput();
     }
     if (e.key === 'Enter') submitCode();
     if (e.key === 'Escape') closeCodeOverlay();
