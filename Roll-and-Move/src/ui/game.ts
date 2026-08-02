@@ -381,15 +381,25 @@ export function createGame(
           dice.removeEventListener('animationend', end);
         };
         dice.addEventListener('animationend', end);
-      } else if (msg.t === 'state' && !net.isHost) {
-        turn.players[0].pos = msg.pos![0];
-        turn.players[1].pos = msg.pos![1];
+      } else if (msg.t === 'state' && !net.isHost && msg.pos) {
+        const pos = msg.pos;
+        const prev = [turn.players[0].pos, turn.players[1].pos] as const;
+        turn.players[0].pos = pos[0];
+        turn.players[1].pos = pos[1];
         turn.current = msg.cur!;
         turn.rollsLeft = msg.rolls!;
         turn.lastRoll = msg.last!;
         turn.state = msg.state!;
-        updateTokens();
         refresh();
+        // replay the opponent's move step by step (no teleporting)
+        const moved = prev[0] !== pos[0] ? 0 : prev[1] !== pos[1] ? 1 : -1;
+        const steps = moved === 0 || moved === 1 ? pos[moved] - prev[moved] : 0;
+        if ((moved === 0 || moved === 1) && steps > 0 && (msg.state === 'idle' || msg.state === 'finished')) {
+          setTokenPos(moved, prev[moved]); // snap back in the same frame — invisible
+          for (let k = 1; k <= steps; k++) {
+            setTimeout(() => setTokenPos(moved, prev[moved] + k), k * 210);
+          }
+        }
       } else if (msg.t === 'win' && !net.isHost) {
         const winner = turn.players[msg.winner!];
         winTitle.textContent = t('game.win', { player: t(winner.nameKey) });
