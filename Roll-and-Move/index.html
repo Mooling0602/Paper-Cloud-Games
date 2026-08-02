@@ -24,6 +24,9 @@
         height: 100%;
       }
       #app canvas {
+        display: block; /* anchor at top-left, never centered/offset */
+      }
+      #app canvas {
         touch-action: none; /* keep multi-touch gestures for the game */
       }
       .blocked {

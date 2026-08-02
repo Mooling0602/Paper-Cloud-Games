@@ -32,7 +32,7 @@ if (isSmallScreen()) {
     scale: {
       mode: Phaser.Scale.NONE,
       zoom: 1 / DPR,
-      autoCenter: Phaser.Scale.CENTER_BOTH,
+      autoCenter: Phaser.Scale.Center.NO_CENTER,
     },
     scene: [LoadingScene, MenuScene, GameScene],
   });

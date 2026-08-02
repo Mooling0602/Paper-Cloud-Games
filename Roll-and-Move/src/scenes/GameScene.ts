@@ -12,7 +12,7 @@ import { toggleFullscreen, isFullscreen } from '../../../Core/device/fullscreen'
 import { reportDebug } from '../debug';
 
 const MARGIN = 16 * DPR;
-const TOP_BAR = 72 * DPR;
+const TOP_BAR = 56 * DPR;
 const BOTTOM_ZONE = 200 * DPR;
 const GAP = 8 * DPR;
 
@@ -148,7 +148,7 @@ export class GameScene extends Phaser.Scene {
     });
     this.fsBtn = paperButton(this, {
       x: MARGIN + 45 * DPR,
-      y: 36 * DPR + inset,
+      y: 30 * DPR + inset,
       width: 90 * DPR,
       height: 42 * DPR,
       label: i18n.t('game.fullscreen'),
@@ -157,7 +157,7 @@ export class GameScene extends Phaser.Scene {
     });
     paperButton(this, {
       x: w - 156 * DPR,
-      y: 36 * DPR + inset,
+      y: 30 * DPR + inset,
       width: 40 * DPR,
       height: 36 * DPR,
       label: '−',
@@ -166,7 +166,7 @@ export class GameScene extends Phaser.Scene {
     });
     paperButton(this, {
       x: w - 108 * DPR,
-      y: 36 * DPR + inset,
+      y: 30 * DPR + inset,
       width: 40 * DPR,
       height: 36 * DPR,
       label: '+',
@@ -175,7 +175,7 @@ export class GameScene extends Phaser.Scene {
     });
     this.pctBtn = paperButton(this, {
       x: w - 48 * DPR,
-      y: 36 * DPR + inset,
+      y: 30 * DPR + inset,
       width: 64 * DPR,
       height: 36 * DPR,
       label: '100%',
