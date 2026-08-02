@@ -191,13 +191,13 @@ body {
 }
 .board {
   position: relative;
-  width: min(calc(100vw - 32px), calc(100dvh - 210px));
+  width: min(calc(100vw - 20px), calc(100dvh - 200px));
   aspect-ratio: 1;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(5, 1fr);
-  gap: 2.5%;
-  padding: 2.5%;
+  gap: 1.8%;
+  padding: 1.8%;
   background: rgba(239, 231, 213, 0.5);
   border: 2px solid #3b372e;
   border-radius: 12px;
