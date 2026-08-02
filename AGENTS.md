@@ -59,6 +59,6 @@ This file documents the coding standards and AI collaboration guidelines for the
 - **Online multiplayer architecture**: host-authoritative — the host (房主) runs the server side as the host machine, so the server logic is embedded in the webpage; no separate server deployment
 - **Primary target**: tablets (convenient for same-screen multiplayer); local keyboard/mouse and gamepad support are also required
 - **Adaptation priority**: multi-touch > keyboard/mouse > gamepad (gamepad must support multiple devices for split-play)
-- **Small screens (phones, etc.)**: lowest priority; detect the device screen size and show a friendly blocking message on small screens
+- **Small screens (phones, etc.)**: lowest priority; detect the device screen size and **completely block entry** with a friendly message — mobile users cannot use the game
 - **Testing**: tablets of any OS, any PC, and the Chrome browser
 - **Layout**: games must be responsive to the web page size, with good zoom/scale adjustment support
