@@ -27,7 +27,8 @@
 7. **小屏完全拦截（手机等）**：测试期间**暂时移除**，测试完成后恢复（根 AGENTS.md 已同步标注；`Core/device/screen.ts` 的 `isSmallScreen` 保留备用）。
 8. **联机架构变更（2026-08-02）**：废弃 WebRTC P2P（安全上下文/flag/NAT 门槛过高），改为**服务器中继**（`SignalingServer/` 托管游戏 + 全量消息转发，主机权威保留）；WebSocket 无需安全上下文，Chrome flag/自签名证书方案全部废弃。云部署（Podman + Nginx）待本地中继验证通过后进行。
 9. **生产部署（2026-08-02）**：`https://clemooling.top/play/roll-and-move/`——Podman 容器（`SignalingServer/Dockerfile`，绑定 127.0.0.1:8787）+ 服务器 nginx 前缀剥离反代（`/play/roll-and-move/` → `:8787/`，`proxyWebsockets`）；Termux 无法构建容器镜像（无 podman），改为服务器上 `podman build`；NixOS `cache.nixos.org` 不稳定，构建需临时加 USTC 镜像 `--option substituters`。
-10. **自动部署（2026-08-02）**：GitHub Actions（`.github/workflows/build-image.yml`）在 main 推送后自动构建镜像推 GHCR（`ghcr.io/mooling0602/paper-cloud-games`，公开）；服务器 systemd 用户定时器每 5 分钟跑 `SignalingServer/deploy.sh`：pull → digest 比对 → 有更新则等 `/stats` 显示 0 活跃房间（每 10 秒轮询、最长 10 分钟、二次确认）→ 重建容器（玩家永不被中途断开）；`loginctl enable-linger` 已启用；旧的手动打包流程废弃。
+10. **自动部署（2026-08-02）**：GitHub Actions（`.github/workflows/build-image.yml`）在 main 推送后自动构建镜像推 GHCR（`ghcr.io/mooling0602/paper-cloud-games`，公开）；服务器 systemd 用户定时器每 5 分钟跑 `SignalingServer/deploy.sh`：pull → digest 比对 → 有更新则等 `/stats` 显示 0 活跃房间（每 10 秒轮询、最长 10 分钟、二次确认）→ `systemctl --user restart paper-cloud.service`（玩家永不被中途断开）；`loginctl enable-linger` 已启用；旧的手动打包流程废弃。
+11. **部署踩坑（2026-08-02）**：国内 VPS 拉 ghcr.io 不稳定（mihomo fake-IP 代理），主源改用南大镜像 `ghcr.nju.edu.cn`（上游兜底）；`podman pull --retry-delay` 必须带单位（`10s`）；**oneshot 服务里 `podman run -d` 的 rootlessport 端口转发会随服务 cgroup 清理而死**（容器活着但端口不通）——根治方案：Quadlet（`~/.config/containers/systemd/paper-cloud.container`，`PublishPort=127.0.0.1:8787:8787`，`Restart=always`），部署脚本用 `systemctl --user restart` 重建；quadlet 单元 enable 报 "transient or generated"，已手动建 `default.target.wants` symlink 实现开机自启。
 
 ## 当前测试设备
 
