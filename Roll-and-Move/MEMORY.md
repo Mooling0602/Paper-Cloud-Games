@@ -8,30 +8,33 @@
 
 ```
 Roll-and-Move/
-├── index.html               # 入口页面（字体/样式/小屏拦截样式）
+├── index.html               # 入口页面（字体加载）
 ├── package.json / tsconfig.json / vite.config.ts
 └── src/
-    ├── main.ts              # Phaser 启动 + 小屏检测拦截（宽<768 或 高<600 完全阻止）
+    ├── main.ts              # 启动：小屏拦截（宽<768 或 高<600 完全阻止）、加载→菜单→游戏流程、全屏、调试信息
+    ├── style.css            # 纸面风格全部样式（DOM 原生）
+    ├── debug.ts             # 调试上报（dev server 日志）
     ├── i18n/                # 语言文件 en.json / zh-CN.json（双语）
-    ├── scenes/
-    │   ├── LoadingScene.ts  # 局外：加载进度条（等待字体加载）
-    │   ├── MenuScene.ts     # 局外：纸面背景 + 开始/语言切换
-    │   └── GameScene.ts     # 局内：棋盘 + 控件 + 骰子 + 缩放
-    ├── game/
-    │   ├── board.ts         # 5×5 蛇形路径、手绘风格子绘制、棋子
-    │   ├── dice.ts          # 骰子：点击 → 上抛旋转 → 落定（1-6）
+    ├── logic/               # 纯逻辑（无渲染依赖）
+    │   ├── board.ts         # 5×5 蛇形路径计算
     │   └── turn.ts          # 回合状态机：2 玩家、每轮最多 3 次掷骰
-    ├── ui/
-    │   └── paperButton.ts   # 纸面风格按钮组件
-    └── style/
-        └── draw.ts          # 手绘风绘制工具（抖动线条、纸纹纹理、箭头）
+    └── ui/                  # DOM 视图层
+        ├── paper.ts         # DOM 工具：元素创建、纸面按钮、i18n 刷新
+        ├── loading.ts       # 局外：加载进度条（等待字体）
+        ├── menu.ts          # 局外：菜单（开始/语言切换/署名）
+        └── game.ts          # 局内：CSS Grid 棋盘、骰子、控件、回合流程
 
 Core/（仓库根目录，可复用逻辑，供所有游戏使用）
 ├── device/screen.ts         # 小屏检测
+├── device/fullscreen.ts     # 全屏工具
 ├── i18n/LanguageManager.ts  # 双语语言管理器
 ├── zoom/ZoomController.ts   # 内置缩放逻辑
 └── style/paper.ts           # 纸面风格主题（颜色/字体）
 ```
+
+## 技术栈变更记录
+
+- **2026-08-02**：废弃 Phaser 4，改为 Web 原生技术栈（DOM/CSS/TypeScript），根 AGENTS.md 已同步更新约定
 
 ## 讨论过但暂不推进
 

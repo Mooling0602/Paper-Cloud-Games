@@ -6,8 +6,8 @@ export type TurnState = 'idle' | 'deciding' | 'moving' | 'finished';
 export interface PlayerState {
   /** i18n key for the player name. */
   nameKey: string;
-  color: number;
-  soft: number;
+  color: string;
+  soft: string;
   /** 0-based cell index; LAST_CELL = finish. */
   pos: number;
 }
@@ -16,8 +16,8 @@ export const MAX_ROLLS = 3;
 
 export class TurnManager {
   readonly players: PlayerState[] = [
-    { nameKey: 'game.playerRed', color: PAPER.red, soft: PAPER.redSoft, pos: 0 },
-    { nameKey: 'game.playerBlue', color: PAPER.blue, soft: PAPER.blueSoft, pos: 0 },
+    { nameKey: 'game.playerRed', color: PAPER.redCss, soft: PAPER.redSoftCss, pos: 0 },
+    { nameKey: 'game.playerBlue', color: PAPER.blueCss, soft: PAPER.blueSoftCss, pos: 0 },
   ];
   current = 0;
   rollsLeft = MAX_ROLLS;

@@ -19,6 +19,8 @@ export const PAPER = {
   inkSoftCss: '#8a8374',
   redCss: '#c94f4f',
   blueCss: '#4f7ac9',
+  redSoftCss: '#eccaca',
+  blueSoftCss: '#cad4ec',
 };
 
 export const FONTS = {

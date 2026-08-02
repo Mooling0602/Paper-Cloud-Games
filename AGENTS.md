@@ -58,9 +58,9 @@ This file documents the coding standards and AI collaboration guidelines for the
 
 - Language: **TypeScript**
 - Build tooling: **Vite**
-- Game framework: **Phaser 4** (latest stable release)
-- Games are standalone Vite projects in their `<Game-Name>/` directory; monorepo workspace tooling (e.g. pnpm workspaces) is deferred until a second game or a shared package appears
+- **No game engine**: UI controls and game elements are written with web-native technology (DOM/CSS/TypeScript); canvas is only used when a specific game genuinely needs it
 - Reusable logic shared across games lives in `Core/` at the repository root (device detection, i18n manager, zoom controller, paper style theme)
+- Games are standalone Vite projects in their `<Game-Name>/` directory; monorepo workspace tooling (e.g. pnpm workspaces) is deferred until a second game or a shared package appears
 
 ## Design Guidelines
 
