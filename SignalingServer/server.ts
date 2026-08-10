@@ -15,6 +15,9 @@
  *   { "authToken": "..." }  — when set, production mode is on and the
  *   /info and /stats pages require the token via the X-Auth-Token header.
  *   Without the file (or with an empty token) everything stays open (dev).
+ *   { "allowedOrigins": ["https://example.com", "*"] }  — optional; when
+ *   set in production, WebSocket connections are restricted to these
+ *   Origin values.  "*" opens everything.
  *
  * Info page: http://<addr>:8787/  (production: token required)
  */
@@ -31,11 +34,17 @@ const PUBLIC_DIR = process.env.PUBLIC_DIR;
 
 // ---- production mode (token from the config file) ----
 let authToken = '';
+let allowedOrigins: string[] = [];
 try {
   const cfg = JSON.parse(
     readFileSync(process.env.CONFIG_FILE ?? join(process.cwd(), 'config.json'), 'utf8'),
-  ) as { authToken?: unknown };
+  ) as { authToken?: unknown; allowedOrigins?: unknown };
   if (typeof cfg.authToken === 'string') authToken = cfg.authToken;
+  if (Array.isArray(cfg.allowedOrigins)) {
+    allowedOrigins = (cfg.allowedOrigins as unknown[]).filter(
+      (x): x is string => typeof x === 'string',
+    );
+  }
 } catch {
   /* no config file -> dev mode, everything open */
 }
@@ -123,7 +132,37 @@ const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
   res.end('not found');
 });
 
-const wss = new WebSocketServer({ server, path: '/ws' });
+// ---- rate limiting & payload ----
+const MAX_PAYLOAD = 65536; // 64 KiB per message
+const MAX_BUFFERED = 262144; // 256 KiB — skip relay if peer is this far behind
+const MAX_MSG_PER_SEC = 50;
+const connRates = new Map<WebSocket, number[]>();
+
+function checkRate(ws: WebSocket): boolean {
+  const now = Date.now();
+  let stamps = connRates.get(ws);
+  if (!stamps) { stamps = []; connRates.set(ws, stamps); }
+  stamps = stamps.filter(t => now - t < 1000);
+  if (stamps.length >= MAX_MSG_PER_SEC) return false;
+  stamps.push(now);
+  connRates.set(ws, stamps);
+  return true;
+}
+
+const wssOpts: ConstructorParameters<typeof WebSocketServer>[0] = {
+  server,
+  path: '/ws',
+  maxPayload: MAX_PAYLOAD,
+};
+
+if (prod && allowedOrigins.length > 0) {
+  wssOpts.verifyClient = (info, cb) => {
+    const ok = allowedOrigins.some(o => info.origin === o || o === '*');
+    cb(ok, ok ? 101 : 403, ok ? 'Switching Protocols' : 'Forbidden');
+  };
+}
+
+const wss = new WebSocketServer(wssOpts);
 
 interface Room {
   host: WebSocket;
@@ -133,7 +172,12 @@ const MAX_ROOMS = 500;
 const rooms = new Map<string, Room>();
 
 function send(ws: WebSocket, msg: unknown): void {
-  if (ws.readyState === ws.OPEN) ws.send(JSON.stringify(msg));
+  if (ws.readyState !== ws.OPEN) return;
+  if (ws.bufferedAmount > MAX_BUFFERED) {
+    console.warn('[relay] skipping message for slow peer');
+    return;
+  }
+  ws.send(JSON.stringify(msg));
 }
 
 function newCode(): string | null {
@@ -151,6 +195,10 @@ wss.on('connection', (ws) => {
   let role: 'host' | 'guest' | null = null;
 
   ws.on('message', (raw) => {
+    if (!checkRate(ws)) {
+      ws.close(1008, 'rate limit');
+      return;
+    }
     let msg: { t?: string; code?: unknown; data?: unknown };
     try {
       msg = JSON.parse(String(raw)) as typeof msg;
@@ -194,6 +242,7 @@ wss.on('connection', (ws) => {
   });
 
   ws.on('close', () => {
+    connRates.delete(ws);
     if (!roomCode) return;
     const room = rooms.get(roomCode);
     if (!room) return;
