@@ -10,6 +10,19 @@ set -euo pipefail
 CANDIDATES="ghcr.nju.edu.cn/mooling0602/paper-cloud-games:latest ghcr.io/mooling0602/paper-cloud-games:latest"
 STATS="http://127.0.0.1:8787/stats"
 
+# auth token for /stats (same mount as paper-cloud.container Volume)
+TOKEN=""
+CFG="${RELAY_CONFIG:-$HOME/paper-cloud/config.json}"
+if [ -r "$CFG" ]; then
+  TOKEN=$(sed -n 's/.*"authToken"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$CFG" | head -1) || true
+fi
+if [ -n "$TOKEN" ]; then HDR=(-H "X-Auth-Token: $TOKEN"); else HDR=(); fi
+
+# fetch /stats, return HTTP code; stdout is body
+poll_stats() {
+  curl -s --max-time 3 -w '\n%{http_code}' "${HDR[@]}" "$STATS"
+}
+
 digest_of() {
   podman image inspect --format '{{.Digest}}' "$1" 2>/dev/null || true
 }
@@ -48,14 +61,32 @@ echo "$(date +%H:%M) new image: $AFTER"
 down=0
 rooms=""
 for _ in $(seq 1 60); do
-  rooms=$(curl -s --max-time 3 "${HDR[@]}" "$STATS" | grep -oE '[0-9]+' || true)
-  if [ -z "$rooms" ]; then
+  resp=$(poll_stats)
+  code=$(echo "$resp" | tail -1)
+  if [ "$code" = "401" ] || [ "$code" = "403" ]; then
+    echo "$(date +%H:%M) auth error (HTTP $code) — check $CFG authToken; stopping" >&2
+    exit 0
+  fi
+  if [ -z "$code" ]; then
+    # connection failed — relay may be down
     down=$((down + 1))
+    rooms=""
     [ "$down" -ge 2 ] && break # relay unreachable -> already down, redeploy
-  elif [ "$rooms" = "0" ]; then
-    sleep 5 # second confirm right before swapping
-    rooms=$(curl -s --max-time 3 "${HDR[@]}" "$STATS" | grep -oE '[0-9]+' || true)
-    [ "$rooms" = "0" ] && break
+  else
+    rooms=$(echo "$resp" | sed '$d' | grep -oE '[0-9]+' || true)
+    if [ "$rooms" = "0" ]; then
+      sleep 5 # second confirm right before swapping
+      resp2=$(poll_stats)
+      code2=$(echo "$resp2" | tail -1)
+      if [ "$code2" = "401" ] || [ "$code2" = "403" ]; then
+        echo "$(date +%H:%M) auth error (HTTP $code2) — check $CFG authToken; stopping" >&2
+        exit 0
+      fi
+      if [ -n "$code2" ]; then
+        rooms2=$(echo "$resp2" | sed '$d' | grep -oE '[0-9]+' || true)
+        [ "$rooms2" = "0" ] && break
+      fi
+    fi
   fi
   sleep 10
 done
