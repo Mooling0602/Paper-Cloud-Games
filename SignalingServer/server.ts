@@ -129,18 +129,21 @@ interface Room {
   host: WebSocket;
   guest: WebSocket | null;
 }
+const MAX_ROOMS = 500;
 const rooms = new Map<string, Room>();
 
 function send(ws: WebSocket, msg: unknown): void {
   if (ws.readyState === ws.OPEN) ws.send(JSON.stringify(msg));
 }
 
-function newCode(): string {
-  let code: string;
-  do {
-    code = String(1000 + Math.floor(Math.random() * 9000));
-  } while (rooms.has(code));
-  return code;
+function newCode(): string | null {
+  // 4-digit codes (space 9000), well above MAX_ROOMS; collision risk < 3%
+  // at the cap, so a modest retry budget always finds a free code.
+  for (let i = 0; i < 100; i++) {
+    const code = String(1000 + Math.floor(Math.random() * 9000));
+    if (!rooms.has(code)) return code;
+  }
+  return null; // fallback — should never happen with MAX_ROOMS << 9000
 }
 
 wss.on('connection', (ws) => {
@@ -156,7 +159,16 @@ wss.on('connection', (ws) => {
     }
     if (msg.t === 'create') {
       if (roomCode) return; // already in a room — ignore (double-tap protection)
-      roomCode = newCode();
+      if (rooms.size >= MAX_ROOMS) {
+        send(ws, { t: 'error', msg: 'server busy, try later' });
+        return;
+      }
+      const code = newCode();
+      if (!code) {
+        send(ws, { t: 'error', msg: 'no room code available, try later' });
+        return;
+      }
+      roomCode = code;
       role = 'host';
       rooms.set(roomCode, { host: ws, guest: null });
       send(ws, { t: 'created', code: roomCode });
