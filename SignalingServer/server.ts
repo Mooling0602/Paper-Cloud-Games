@@ -35,18 +35,33 @@ const PUBLIC_DIR = process.env.PUBLIC_DIR;
 // ---- production mode (token from the config file) ----
 let authToken = '';
 let allowedOrigins: string[] = [];
+const configPath = process.env.CONFIG_FILE ?? join(process.cwd(), 'config.json');
 try {
-  const cfg = JSON.parse(
-    readFileSync(process.env.CONFIG_FILE ?? join(process.cwd(), 'config.json'), 'utf8'),
-  ) as { authToken?: unknown; allowedOrigins?: unknown };
+  const raw = readFileSync(configPath, 'utf8');
+  let cfg: { authToken?: unknown; allowedOrigins?: unknown };
+  try {
+    cfg = JSON.parse(raw);
+  } catch (e) {
+    console.error('[relay] config parse error:', e instanceof Error ? e.message : e);
+    process.exit(1);
+  }
   if (typeof cfg.authToken === 'string') authToken = cfg.authToken;
   if (Array.isArray(cfg.allowedOrigins)) {
     allowedOrigins = (cfg.allowedOrigins as unknown[]).filter(
       (x): x is string => typeof x === 'string',
     );
   }
-} catch {
-  /* no config file -> dev mode, everything open */
+} catch (e: unknown) {
+  if ((e as { code?: string }).code === 'ENOENT') {
+    if (process.env.CONFIG_FILE) {
+      console.error('[relay] CONFIG_FILE set but not found:', configPath);
+      process.exit(1);
+    }
+    console.warn('[relay] no config file, running in dev mode (open)');
+  } else {
+    console.error('[relay] config read error:', (e as Error).message ?? String(e));
+    process.exit(1);
+  }
 }
 const prod = authToken.length > 0;
 
