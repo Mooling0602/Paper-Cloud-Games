@@ -24,6 +24,7 @@ This file documents the coding standards and AI collaboration guidelines for the
 
 **Commit messages follow Conventional Commits**
 
+- Write commit messages in **English**.
 - Format: `<type>(<scope>): <description>`
 - `type` must be one of the following:
   - `feat`: a new feature
