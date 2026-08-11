@@ -20,7 +20,7 @@ Roll-and-Move/
     │   ├── turn.ts          # 回合状态机：2 玩家、每轮最多 3 次掷骰
     │   └── save.ts          # 持久化存档（localStorage：本地对局 + 联机断线）
     ├── net/
-    │   └── online.ts        # 联机会话：信令配对 + WebRTC DataChannel（IPv6 P2P）
+    │   └── online.ts        # 联机会话：WebSocket 中继（通过 SignalingServer 转发）
     └── ui/                  # DOM 视图层
         ├── paper.ts         # DOM 工具：元素创建、纸面按钮、i18n 刷新
         ├── loading.ts       # 局外：加载进度条（等待字体）

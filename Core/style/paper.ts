@@ -1,7 +1,7 @@
 /** Paper design style theme (brand core): colors and fonts shared across games. */
 
 export const PAPER = {
-  /** Hex numbers for Phaser Graphics fill/stroke styles. */
+  /** Hex color numbers. */
   base: 0xf6f1e5, // paper white
   alt: 0xefe7d5, // darker paper (cells)
   ink: 0x3b372e, // ink lines
@@ -12,7 +12,7 @@ export const PAPER = {
   yellow: 0xd9b64a,
   redSoft: 0xeccaca,
   blueSoft: 0xcad4ec,
-  /** CSS color strings for Phaser Text styles. */
+  /** CSS color strings. */
   baseCss: '#f6f1e5',
   altCss: '#efe7d5',
   inkCss: '#3b372e',
@@ -29,9 +29,5 @@ export const FONTS = {
   heading: '"Patrick Hand", "LXGW WenKai", cursive',
 };
 
-/**
- * World scale factor: the game runs in physical pixels (window × DPR) and is
- * displayed back at the logical size via scale zoom = 1/DPR, so everything
- * renders 1:1 with screen pixels (Phaser 4 has no hi-dpi support itself).
- */
+/** Device-pixel ratio (capped at 3). Currently unused — kept for potential canvas usage. */
 export const DPR = Math.min(window.devicePixelRatio || 1, 3);

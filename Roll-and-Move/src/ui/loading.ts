@@ -1,4 +1,4 @@
-import { el, paperButton } from './paper';
+import { el } from './paper';
 import type { LangCode } from '../../../Core/i18n/LanguageManager';
 
 export interface LoadingView {

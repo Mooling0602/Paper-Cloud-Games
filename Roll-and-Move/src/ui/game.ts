@@ -313,13 +313,13 @@ export function createGame(
     setDiceEnabled(false);
     rollBtn.hidden = true;
     confirmBtn.hidden = true;
-    const steps = turn.lastRoll;
+    const steps = Math.min(turn.lastRoll, LAST_CELL - turn.player.pos);
     const start = turn.player.pos;
     const pi = turn.current;
     for (let k = 1; k <= steps; k++) {
       setTimeout(() => setTokenPos(pi, start + k), k * 210);
     }
-    setTimeout(finishMove, (steps + 1) * 210 + 50);
+    setTimeout(finishMove, steps > 0 ? (steps + 1) * 210 + 50 : 50);
   };
 
   const finishMove = (): void => {
@@ -406,8 +406,9 @@ export function createGame(
         const moved = prev[0] !== pos[0] ? 0 : prev[1] !== pos[1] ? 1 : -1;
         const steps = moved === 0 || moved === 1 ? pos[moved] - prev[moved] : 0;
         if ((moved === 0 || moved === 1) && steps > 0 && (msg.state === 'idle' || msg.state === 'finished')) {
+          const animSteps = Math.min(steps, LAST_CELL - prev[moved]);
           setTokenPos(moved, prev[moved]); // snap back in the same frame — invisible
-          for (let k = 1; k <= steps; k++) {
+          for (let k = 1; k <= animSteps; k++) {
             setTimeout(() => setTokenPos(moved, prev[moved] + k), k * 210);
           }
         }

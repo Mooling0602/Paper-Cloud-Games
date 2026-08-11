@@ -117,7 +117,11 @@ async function boot(): Promise<void> {
 
   const startLobby = (initial: SavedGame | undefined, role: NetRole, code?: string, server?: string) => {
     teardownNet();
-    const addr = server ?? 'localhost:8787';
+    let addr = server;
+    if (!addr) {
+      try { addr = localStorage.getItem('rm-server-addr') || undefined; } catch { /* ignore */ }
+      addr = addr || 'localhost:8787';
+    }
     const scheme = location.protocol === 'https:' ? 'wss' : 'ws';
     const url = `${scheme}://${addr}/ws`;
     let msgCb: ((m: unknown) => void) | null = null;

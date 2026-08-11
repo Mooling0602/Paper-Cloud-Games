@@ -1,4 +1,4 @@
-import { el, paperButton } from './paper';
+import { el, paperButton, refreshI18n } from './paper';
 import { i18n } from '../../../Core/i18n/LanguageManager';
 import { reportDebug } from '../debug';
 
@@ -227,13 +227,7 @@ export function createOnlineSetup(cb: OnlineSetupCallbacks): OnlineSetupView {
     hideLobby: () => lobby.classList.add('hidden'),
   };
 
-  const refresh = () => {
-    view.querySelectorAll<HTMLElement>('[data-i18n]').forEach((n) => {
-      const key = n.dataset.i18n;
-      if (key) n.textContent = t(key);
-    });
-  };
-  const unsub = i18n.onChanged(refresh);
+  const unsub = i18n.onChanged(() => refreshI18n(view, t));
 
   return setup;
 }
