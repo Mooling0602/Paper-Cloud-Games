@@ -151,6 +151,8 @@ const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
 const MAX_PAYLOAD = 65536; // 64 KiB per message
 const MAX_BUFFERED = 262144; // 256 KiB — skip relay if peer is this far behind
 const MAX_MSG_PER_SEC = 50;
+const HEARTBEAT_INTERVAL = 30000; // 30 s between pings
+const HEARTBEAT_TIMEOUT = 10000;  // 10 s wait for pong before terminating
 const connRates = new Map<WebSocket, number[]>();
 
 function checkRate(ws: WebSocket): boolean {
@@ -209,6 +211,27 @@ wss.on('connection', (ws) => {
   let roomCode: string | null = null;
   let role: 'host' | 'guest' | null = null;
 
+  // ---- heartbeat: detect dead connections (crashed client, network loss) ----
+  let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+  let pongTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  const clearHeartbeat = () => {
+    if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
+    if (pongTimeout) { clearTimeout(pongTimeout); pongTimeout = null; }
+  };
+
+  heartbeatTimer = setInterval(() => {
+    ws.ping();
+    pongTimeout = setTimeout(() => {
+      console.warn('[relay] heartbeat timeout, terminating connection');
+      ws.terminate();
+    }, HEARTBEAT_TIMEOUT);
+  }, HEARTBEAT_INTERVAL);
+
+  ws.on('pong', () => {
+    if (pongTimeout) { clearTimeout(pongTimeout); pongTimeout = null; }
+  });
+
   ws.on('message', (raw) => {
     if (!checkRate(ws)) {
       ws.close(1008, 'rate limit');
@@ -257,6 +280,7 @@ wss.on('connection', (ws) => {
   });
 
   ws.on('close', () => {
+    clearHeartbeat();
     connRates.delete(ws);
     if (!roomCode) return;
     const room = rooms.get(roomCode);
