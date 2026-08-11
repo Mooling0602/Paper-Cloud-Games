@@ -1,9 +1,31 @@
 /**
  * Paper Cloud Games — relay server.
  *
- * Hosts the game (static files) and relays ALL messages between a room's
+ * Hosts the game (static files) and relays messages between a room's
  * host and guest over WebSocket. The host still runs the authoritative game
  * logic; this server only forwards data (no WebRTC involved).
+ *
+ * == WebSocket protocol ==
+ *
+ * Every message is a JSON object with a string `t` (type) field.
+ *
+ * Client → server (control, never relayed):
+ *   { t: "create" }
+ *   { t: "join", code: "<4-digit room code>" }
+ *
+ * Server → client (control, never accepted from clients):
+ *   { t: "created", code: "<code>" }
+ *   { t: "joined" }
+ *   { t: "peer-ready" }
+ *   { t: "error", msg: "<reason>" }
+ *   { t: "peer-left" }
+ *
+ * Client ↔ client (relay — only when in a room):
+ *   { t: "<game-specific>", ... }
+ *
+ *   Requirements: object with string `t`; `t` must not collide with any
+ *   reserved control type listed above.  The message body is forwarded
+ *   as-is after structural validation.
  *
  * Env:
  *   PORT        listen port (default 8787)
@@ -181,6 +203,18 @@ if (prod && allowedOrigins.length > 0) {
 
 const wss = new WebSocketServer(wssOpts);
 
+// ---- message types reserved by the server (never relayed) ----
+const RESERVED = new Set([
+  'create', 'join',        // client → server control
+  'created', 'joined', 'peer-ready', 'error', 'peer-left', // server → client control
+]);
+
+function isValidRelay(msg: unknown): msg is { t: string } & Record<string, unknown> {
+  if (msg === null || typeof msg !== 'object' || Array.isArray(msg)) return false;
+  const t = (msg as { t?: unknown }).t;
+  return typeof t === 'string' && !RESERVED.has(t);
+}
+
 interface Room {
   host: WebSocket;
   guest: WebSocket | null;
@@ -271,7 +305,8 @@ wss.on('connection', (ws) => {
       send(ws, { t: 'joined' });
       send(room.host, { t: 'peer-ready' });
     } else if (roomCode) {
-      // relay every other message (game data, state, actions) to the peer
+      // relay game messages — structural validation enforced
+      if (!isValidRelay(msg)) return;
       const room = rooms.get(roomCode);
       if (!room) return;
       const peer = role === 'host' ? room.guest : room.host;
